@@ -167,6 +167,41 @@
     <div class="bg-white p-4 md:p-6 rounded-xl shadow mt-6">
         <h2 class="text-lg font-semibold mb-4">لیست تسهیلات</h2>
 
+        <div class="flex flex-col md:flex-row flex-wrap gap-4 items-start mb-4 bg-gray-50 p-4 rounded-lg">
+            <form action="#" class="flex flex-col md:flex-row flex-wrap gap-2 w-full md:flex-1">
+                <!-- Search input -->
+                <input type="text" placeholder="جستجو..."
+                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-64 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+
+                <!-- Date filters -->
+                <input type="text" placeholder="از تاریخ" id="fromDate" pattern="\d{4}/\d{2}/\d{2}"
+                    title="فرمت صحیح: YYYY/MM/DD"
+                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-32 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="text" placeholder="تا تاریخ" id="toDate" pattern="\d{4}/\d{2}/\d{2}"
+                    title="فرمت صحیح: YYYY/MM/DD"
+                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-32 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+
+                <!-- Apply filters button -->
+                <button type="submit"
+                    class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                    اعمال
+                </button>
+            </form>
+
+            <!-- Export to Excel -->
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+                <button
+                    class="flex items-center gap-1 justify-center w-full md:w-auto px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4h16v16H4V4zm4 4l8 8m0-8l-8 8" />
+                    </svg>
+                    خروجی اکسل
+                </button>
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="min-w-full border text-sm text-gray-700 text-center">
                 <thead class="bg-gray-100">
@@ -243,10 +278,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Persian datepicker
-            $("#startDate").persianDatepicker({
-                selectedBefore: true
-            });
+
 
             // Chart.js pie chart
             const ctx = document.getElementById('loanChart');

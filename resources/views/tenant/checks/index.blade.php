@@ -344,11 +344,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Persian datepickers
-            $("#dueDate, #issueDate, #fromDate, #toDate").persianDatepicker({
-                selectedBefore: true
-            });
-
 
             // Chart.js pie chart
             const ctx = document.getElementById('chart');

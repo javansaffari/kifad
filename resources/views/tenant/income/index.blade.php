@@ -275,10 +275,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Initialize Persian datepicker
-            $("#datapicker").persianDatepicker({
-                selectedBefore: true
-            });
 
             // Handle main category change and populate subcategories
             const categories = @json($categories);

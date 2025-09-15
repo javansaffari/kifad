@@ -563,10 +563,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Initialize Persian datepicker
-            $("#expenseDatapicker, #incomeDatapicker, #transferDatapicker").persianDatepicker({
-                selectedBefore: true
-            });
+
 
 
             // Handle tab switching (single unified block)

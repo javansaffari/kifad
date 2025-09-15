@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         closeIcon.classList.add('hidden');
     });
 
+      
 
                 // سه‌رقمی کردن مبلغ
                 $('.amount').on('input', function() {
@@ -53,5 +54,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 tokenSeparators: [',', ' ']
             });
 
+      // Initialize Persian datepickers for all relevant inputs
+$("#expenseDatapicker, #incomeDatapicker, #transferDatapicker, #datapicker, #startDate, #dueDate, #issueDate, #fromDate, #toDate").persianDatepicker({
+    selectedBefore: true
+});
+
+
+                
 });
 
