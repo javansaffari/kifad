@@ -118,7 +118,7 @@
 
                 <!-- Account selection -->
                 <div>
-                    <label class="block text-sm mb-2">حساب</label>
+                    <label class="block text-sm mb-2">برداشت از حساب</label>
                     <select id="account" name="account" required class="w-full border-gray-300 rounded-lg shadow-sm">
                         @foreach ($accounts as $acc)
                             <option value="{{ $acc->id }}">{{ $acc->title }} (موجودی:
