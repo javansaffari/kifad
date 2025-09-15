@@ -23,7 +23,7 @@
             <div class="bg-gray-900 opacity-50 hidden fixed inset-0 z-10" id="sidebarBackdrop"></div>
             <div id="main-content" class="h-full w-full bg-gray-50 relative overflow-y-auto lg:mr-64">
                 <main>
-                    <div class="pt-8 px-12 =">
+                    <div class="py-8 px-12 =">
                         @include('tenant.layouts.messages')
                         <h1 class="text-2xl font-bold mb-5">@yield('pageTitle')</h1>
                         <div class="w-full grid grid-cols-1 xl:grid-cols-1 2xl:grid-cols-1 gap-4 overflow-hidden">
