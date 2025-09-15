@@ -23,21 +23,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
-// Ensure amount input is numeric only with thousand separators
-$('#amount').on('input', function() {
-    let value = $(this).val().replace(/,/g, ''); // Remove commas
-    // Check if value is numeric
-    if (/^\d*$/.test(value)) {
-        $(this).val(value === '' ? '' : Number(value).toLocaleString('en-US'));
-        $('#amountError').text(''); // Clear error message
-    } else {
-        // Show error and remove invalid characters
-        $('#amountError').text('ورودی باید فقط عدد باشد.');
-        // Remove last invalid character
-        $(this).val($(this).val().slice(0, -1));
-    }
-});
-
+                // سه‌رقمی کردن مبلغ
+                $('.amount').on('input', function() {
+                    let $this = $(this);
+                    let value = $this.val().replace(/,/g, ''); // Remove commas
+                
+                    // Check if numeric
+                    if (/^\d*$/.test(value)) {
+                        $this.val(value === '' ? '' : Number(value).toLocaleString('en-US'));
+                        $this.siblings('.amountError').text(''); // Clear error message
+                    } else {
+                        // Show error and remove last invalid character
+                        $this.siblings('.amountError').text('ورودی باید فقط عدد باشد.');
+                        $this.val($this.val().slice(0, -1));
+                    }
+                });
 
             // Select2 با قابلیت ایجاد تگ
 
@@ -47,6 +47,11 @@ $('#amount').on('input', function() {
                 tokenSeparators: [',', ' ']
             })
 
+            $(".expensSelect, .incomSelect").select2({
+                dir: "rtl",
+                tags: true,
+                tokenSeparators: [',', ' ']
+            });
 
 });
 
