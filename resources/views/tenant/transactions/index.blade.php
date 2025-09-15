@@ -110,7 +110,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Income Form --}}
 
-        <div class="bg-white p-6 rounded-xl shadow mb-6">
+        <div class="rounded-xl border border-slate-200 bg-white p-5  mb-6">
             <h2 class="text-lg font-semibold mb-4">ثبت تراکنش جدید</h2>
             <div class="mb-4 flex gap-2">
                 <button
@@ -381,14 +381,14 @@
 
 
         {{-- Income Chart --}}
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
             <h2 class="text-lg font-semibold mb-4">تقسیم بندی تراکنش‌های ماهیانه</h2>
             <canvas id="chart" height="600"></canvas>
         </div>
     </div>
 
     {{-- Incomes Table --}}
-    <div class="bg-white p-4 md:p-6 rounded-xl shadow mt-6">
+    <div class="rounded-xl border border-slate-200 bg-white p-5  mt-6">
         <h2 class="text-lg font-semibold mb-4">لیست تراکنش ها</h2>
 
         {{-- Filters --}}

@@ -60,7 +60,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Income Form --}}
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
             <h2 class="text-lg font-semibold mb-4">ثبت درآمد جدید</h2>
             <form class="space-y-4" method="POST" action="#">
                 @csrf
@@ -151,14 +151,14 @@
         </div>
 
         {{-- Income Chart --}}
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
             <h2 class="text-lg font-semibold mb-4">تقسیم‌بندی درآمدها</h2>
             <canvas id="chart" height="200"></canvas>
         </div>
     </div>
 
     {{-- Incomes Table --}}
-    <div class="bg-white p-4 md:p-6 rounded-xl shadow mt-6">
+    <div class="rounded-xl border border-slate-200 bg-white p-5  mt-6">
         <h2 class="text-lg font-semibold mb-4">لیست درآمدها</h2>
 
         {{-- Filters --}}

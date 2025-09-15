@@ -3,7 +3,7 @@
 @section('pageTitle', 'پشتیبانی')
 
 @section('content')
-    <div class="bg-white p-6 rounded-xl shadow">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 ">
         <h1 class="text-2xl font-bold mb-6">پشتیبانی کیفاد</h1>
 
         <p class="text-gray-700 mb-4">

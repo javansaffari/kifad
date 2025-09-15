@@ -63,7 +63,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Check Form --}}
         {{-- Check Form --}}
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
             <h2 class="text-lg font-semibold mb-4">ثبت چک جدید</h2>
             <form class="space-y-4" method="POST" action="#">
                 @csrf
@@ -176,14 +176,14 @@
 
 
         {{-- Check Chart --}}
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
             <h2 class="text-lg font-semibold mb-4">تقسیم‌بندی چک‌ها بر اساس نوع</h2>
             <canvas id="chart" height="200"></canvas>
         </div>
     </div>
 
     {{-- Checks Table --}}
-    <div class="bg-white p-4 md:p-6 rounded-xl shadow mt-6">
+    <div class="rounded-xl border border-slate-200 bg-white p-5  mt-6">
         <h2 class="text-lg font-semibold mb-4">لیست چک‌ها</h2>
 
         {{-- Filters --}}

@@ -3,7 +3,7 @@
 @section('pageTitle', 'راهنما')
 
 @section('content')
-    <div class="bg-white p-6 rounded-xl shadow">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 ">
         <h1 class="text-2xl font-bold mb-6">راهنمای استفاده از کیفاد</h1>
 
         <div class="space-y-4">
@@ -13,11 +13,6 @@
                 <p class="text-gray-700 mt-1">نمایش کلی وضعیت مالی، خلاصه تراکنش‌ها و نمودارها.</p>
             </div>
 
-            {{-- Personal Accounting --}}
-            <div>
-                <h2 class="text-lg font-semibold">حسابداری شخصی</h2>
-                <p class="text-gray-700 mt-1">مدیریت درآمدها، هزینه‌ها و تراکنش‌های شخصی.</p>
-            </div>
 
             {{-- Expenses --}}
             <div>
@@ -79,11 +74,6 @@
                 <p class="text-gray-700 mt-1">تولید گزارش‌های مالی، نمودارها و تحلیل‌های آماری.</p>
             </div>
 
-            {{-- Services --}}
-            <div>
-                <h2 class="text-lg font-semibold">سرویس‌ها</h2>
-                <p class="text-gray-700 mt-1">مدیریت سرویس‌های اشتراکی و خدمات مرتبط با حساب‌ها.</p>
-            </div>
 
             {{-- Billing and Finance --}}
             <div>

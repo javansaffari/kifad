@@ -67,7 +67,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Loan Form --}}
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
             <h2 class="text-lg font-semibold mb-4">ثبت تسهیلات جدید</h2>
             <form class="space-y-4" method="POST" action="#">
                 @csrf
@@ -157,14 +157,14 @@
         </div>
 
         {{-- Loan Chart --}}
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
             <h2 class="text-lg font-semibold mb-4">تقسیم‌بندی تسهیلات بر اساس بانک</h2>
             <canvas id="loanChart" height="600"></canvas>
         </div>
     </div>
 
     {{-- Loans Table --}}
-    <div class="bg-white p-4 md:p-6 rounded-xl shadow mt-6">
+    <div class="rounded-xl border border-slate-200 bg-white p-5  mt-6">
         <h2 class="text-lg font-semibold mb-4">لیست تسهیلات</h2>
 
         <div class="flex flex-col md:flex-row flex-wrap gap-4 items-start mb-4 bg-gray-50 p-4 rounded-lg">
