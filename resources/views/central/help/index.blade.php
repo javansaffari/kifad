@@ -2,10 +2,6 @@
 
 @section('pageTitle', 'راهنما')
 
-@section('styles')
-    <link rel="stylesheet" href="/assets/css/styles.css">
-@endsection
-
 @section('content')
     <div class="bg-white p-6 rounded-xl shadow">
         <h1 class="text-2xl font-bold mb-6">راهنمای استفاده از کیفاد</h1>
@@ -108,10 +104,4 @@
             </div>
         </div>
     </div>
-@endsection
-
-@section('scripts')
-    <script>
-        // You can add interactive scripts here if needed
-    </script>
 @endsection
