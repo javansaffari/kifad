@@ -14,8 +14,15 @@ class PersonController extends Controller
     public function index(Request $request)
     {
         // Define available person types
-        $personTypes = ['کارمند', 'مشتری', 'همکار', 'سایر'];
-
+        $personTypes = [
+            'خانواده',
+            'دوستان',
+            'همکار',
+            'مشتری',
+            'کارمند',
+            'همسایه',
+            'سایر'
+        ];
         // Search filter
         $search = $request->input('search');
 
@@ -66,8 +73,15 @@ class PersonController extends Controller
      */
     public function edit(Person $person)
     {
-        $personTypes = ['کارمند', 'مشتری', 'همکار', 'سایر'];
-
+        $personTypes = [
+            'خانواده',
+            'دوستان',
+            'همکار',
+            'مشتری',
+            'کارمند',
+            'همسایه',
+            'سایر'
+        ];
         return view('tenant.person.edit', compact('person', 'personTypes'));
     }
 

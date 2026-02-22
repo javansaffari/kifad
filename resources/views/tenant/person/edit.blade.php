@@ -29,7 +29,7 @@
                 {{-- Type --}}
                 <div>
                     <label class="block text-sm mb-1">نوع شخص</label>
-                    <select name="type" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <select name="type" class="w-full border-gray-300 rounded-lg shadow-sm">
                         <option value="">انتخاب کنید</option>
                         @foreach ($personTypes as $type)
                             <option value="{{ $type }}" {{ old('type', $person->type) == $type ? 'selected' : '' }}>
@@ -45,7 +45,7 @@
                 {{-- Description --}}
                 <div>
                     <label class="block text-sm mb-1">توضیح</label>
-                    <textarea name="desc" class="w-full border border-gray-300 rounded-lg px-3 py-2 h-24">{{ old('desc', $person->desc) }}</textarea>
+                    <textarea name="desc" class="w-full border border-gray-300 rounded-lg px-3 py-2 h-24">{{ old('desc', $person->description) }}</textarea>
                     @error('desc')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror

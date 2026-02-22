@@ -80,6 +80,9 @@
 }
 
 
+.ltr {
+	direction: ltr !important;
+}
 
 .chart-container {
 	position: relative;

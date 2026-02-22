@@ -27,7 +27,7 @@
                     <h3 class="text-gray-400 text-xs uppercase px-2">حسابداری شخصی</h3>
                     <ul class="space-y-2">
                         <li>
-                            <a href="{{ route('tenant.expenses') }}"
+                            <a href="{{ route('tenant.expenses.index') }}"
                                 class="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 group 
                                {{ request()->routeIs('tenant.expenses*') ? 'bg-gray-100 text-[#009696] font-semibold' : 'hover:bg-gray-100' }}">
                                 <!-- Expenses Icon -->
@@ -40,7 +40,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('tenant.income') }}"
+                            <a href="{{ route('tenant.income.index') }}"
                                 class="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 group 
                                {{ request()->routeIs('tenant.income*') ? 'bg-gray-100 text-[#009696] font-semibold' : 'hover:bg-gray-100' }}">
                                 <!-- Income Icon -->
@@ -53,7 +53,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('tenant.transactions') }}"
+                            <a href="{{ route('tenant.transactions.index') }}"
                                 class="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 group 
                                {{ request()->routeIs('tenant.transactions*') ? 'bg-gray-100 text-[#009696] font-semibold' : 'hover:bg-gray-100' }}">
                                 <!-- Transactions Icon -->
@@ -66,7 +66,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('tenant.cheques') }}"
+                            <a href="{{ route('tenant.cheques.index') }}"
                                 class="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 group 
                                {{ request()->routeIs('tenant.cheques*') ? 'bg-gray-100 text-[#009696] font-semibold' : 'hover:bg-gray-100' }}">
                                 <!-- Cheques Icon -->
@@ -79,7 +79,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('tenant.loans') }}"
+                            <a href="{{ route('tenant.loans.index') }}"
                                 class="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 group 
                                {{ request()->routeIs('tenant.loans*') ? 'bg-gray-100 text-[#009696] font-semibold' : 'hover:bg-gray-100' }}">
                                 <!-- Loans Icon -->
@@ -92,7 +92,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('tenant.debts') }}"
+                            <a href="{{ route('tenant.debts.index') }}"
                                 class="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 group 
                                {{ request()->routeIs('tenant.debts*') ? 'bg-gray-100 text-[#009696] font-semibold' : 'hover:bg-gray-100' }}">
                                 <!-- Debts Icon -->
@@ -105,7 +105,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('tenant.accounts') }}"
+                            <a href="{{ route('tenant.accounts.index') }}"
                                 class="text-base text-gray-900 font-normal rounded-lg flex items-center p-2 group 
                                {{ request()->routeIs('tenant.accounts*') ? 'bg-gray-100 text-[#009696] font-semibold' : 'hover:bg-gray-100' }}">
                                 <!-- Accounts Icon -->

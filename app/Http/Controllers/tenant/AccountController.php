@@ -4,81 +4,229 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Tenant\Person;
+use App\Models\Tenant\Account;
+use App\Models\Tenant\Transaction;
 
-class PersonController extends Controller
+class AccountController extends Controller
 {
     /**
-     * Display all persons and chart data.
+     * Display a listing of accounts with chart data.
      */
     public function index(Request $request)
     {
-        // Define person types
-        $personTypes = ['کارمند', 'مشتری', 'همکار', 'سایر'];
+        $accountTypes = [
+            'پول نقد',
+            'حساب جاری',
+            'حساب پس‌انداز',
+            'حساب سپرده',
+            'حساب وکالتی',
+            'حساب مشترک',
+            'حساب ارزی',
+            'سایر',
+        ];
 
-        // Fetch all persons from database
-        $persons = Person::all();
+        $banks = [
+            'بانک آینده',
+            'بانک اقتصاد نوین',
+            'بانک انصار',
+            'بانک ایران زمین',
+            'بانک پارسیان',
+            'بانک پاسارگاد',
+            'بانک تجارت',
+            'بانک توسعه تعاون',
+            'بانک توسعه صادرات ایران',
+            'بانک صنعت و معدن',
+            'بانک سینا',
+            'بانک سپه',
+            'بانک شهر',
+            'بانک سرمایه',
+            'بانک قرض‌الحسنه رسالت',
+            'بانک قرض‌الحسنه مهر ایران',
+            'بانک رفاه کارگران',
+            'بانک حکمت ایرانیان',
+            'بانک خاورمیانه',
+            'بانک گردشگری',
+            'بانک مسکن',
+            'بانک ملت',
+            'بانک ملی ایران',
+            'بانک کارآفرین',
+            'بانک صادرات ایران',
+            'پست بانک ایران',
+            'موسسه اعتباری کوثر',
+            'موسسه اعتباری ملل',
+            'موسسه اعتباری نور',
+            'موسسه اعتباری توسعه',
+            'سایر',
+        ];
+        // Search filter
+        $search = $request->input('search');
 
-        // Prepare chart data grouped by type
-        $chartData = [];
-        foreach ($persons as $p) {
-            $chartData[$p->type] = ($chartData[$p->type] ?? 0) + 1;
+        $accountsQuery = Account::query();
+
+        if ($search) {
+            $accountsQuery->where('title', 'like', "%{$search}%")
+                ->orWhere('type', 'like', "%{$search}%")
+                ->orWhere('bank', 'like', "%{$search}%");
         }
 
-        // Pass variables to the view
-        return view('tenant.persons.index', compact('persons', 'personTypes', 'chartData'));
+        // Get all accounts
+        $accounts = $accountsQuery->latest()->get();
+
+        // Prepare chart data grouped by type
+        $chartData = $accounts->groupBy('type')->map(function ($items) {
+            return $items->sum('balance');
+        });
+
+        $totalBalance = $accounts->sum('balance');
+
+        return view('tenant.accounts.index', compact(
+            'accounts',
+            'accountTypes',
+            'banks',
+            'chartData',
+            'totalBalance'
+        ));
     }
 
     /**
-     * Store a new person.
+     * Store a newly created account.
      */
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'nullable|string',
-            'desc' => 'nullable|string',
+            'title' => 'required|string|max:255',
+            'balance' => 'required|numeric',
+            'type' => 'required|string',
+            'bank' => 'required|string',
+            'desc' => 'nullable|string|max:500',
         ]);
 
-        Person::create($request->only(['name', 'type', 'desc']));
+        Account::create([
+            'title' => $request->title,
+            'balance' => $request->balance,
+            'type' => $request->type,
+            'bank' => $request->bank,
+            'description' => $request->desc,
+        ]);
 
-        return redirect()->back()->with('success', 'Person created successfully.');
+        return redirect()->route('tenant.accounts.index')
+            ->with('success', 'حساب با موفقیت ایجاد شد.');
     }
 
     /**
-     * Show the edit form for a person.
+     * Show the form for editing an account.
      */
-    public function edit(Person $person)
+    public function edit(Account $account)
     {
-        $personTypes = ['کارمند', 'مشتری', 'همکار', 'سایر'];
+        $accountTypes = [
+            'پول نقد',
+            'حساب جاری',
+            'حساب پس‌انداز',
+            'حساب سپرده',
+            'حساب وکالتی',
+            'حساب مشترک',
+            'حساب ارزی',
+            'سایر',
+        ];
+        $banks = [
+            'بانک آینده',
+            'بانک اقتصاد نوین',
+            'بانک انصار',
+            'بانک ایران زمین',
+            'بانک پارسیان',
+            'بانک پاسارگاد',
+            'بانک تجارت',
+            'بانک توسعه تعاون',
+            'بانک توسعه صادرات ایران',
+            'بانک صنعت و معدن',
+            'بانک سینا',
+            'بانک سپه',
+            'بانک شهر',
+            'بانک سرمایه',
+            'بانک قرض‌الحسنه رسالت',
+            'بانک قرض‌الحسنه مهر ایران',
+            'بانک رفاه کارگران',
+            'بانک حکمت ایرانیان',
+            'بانک خاورمیانه',
+            'بانک گردشگری',
+            'بانک مسکن',
+            'بانک ملت',
+            'بانک ملی ایران',
+            'بانک کارآفرین',
+            'بانک صادرات ایران',
+            'پست بانک ایران',
+            'موسسه اعتباری کوثر',
+            'موسسه اعتباری ملل',
+            'موسسه اعتباری نور',
+            'موسسه اعتباری توسعه',
+            'سایر',
+        ];
 
-        return view('tenant.persons.edit', compact('person', 'personTypes'));
+        // Get all accounts for table & chart
+        $accounts = Account::latest()->get();
+
+        // Total balance
+        $totalBalance = $accounts->sum('balance');
+
+        // Chart data grouped by type
+        $chartData = $accounts->groupBy('type')->map(fn($items) => $items->sum('balance'));
+
+        return view('tenant.accounts.edit', compact(
+            'account',
+            'accounts',
+            'accountTypes',
+            'banks',
+            'totalBalance',
+            'chartData'
+        ));
     }
 
     /**
-     * Update a person's data.
+     * Update the specified account.
      */
-    public function update(Request $request, Person $person)
+    public function update(Request $request, Account $account)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'nullable|string',
-            'desc' => 'nullable|string',
+            'title' => 'required|string|max:255',
+            'balance' => 'required|numeric',
+            'type' => 'required|string',
+            'bank' => 'required|string',
+            'desc' => 'nullable|string|max:500',
         ]);
 
-        $person->update($request->only(['name', 'type', 'desc']));
+        $account->update([
+            'title' => $request->title,
+            'balance' => $request->balance,
+            'type' => $request->type,
+            'bank' => $request->bank,
+            'description' => $request->desc,
+        ]);
 
-        return redirect()->route('tenant.persons.index')
-            ->with('success', 'Person updated successfully.');
+        return redirect()->route('tenant.accounts.index')
+            ->with('success', 'حساب با موفقیت بروزرسانی شد.');
     }
 
     /**
-     * Delete a person.
+     * Remove the specified account.
      */
-    public function destroy(Person $person)
+    /**
+     * Remove the specified account.
+     */
+    public function destroy(Account $account)
     {
-        $person->delete();
+        // Check if account is used in any transaction (from or to)
+        $hasTransactions = Transaction::where('from_account_id', $account->id)
+            ->orWhere('to_account_id', $account->id)
+            ->exists();
 
-        return redirect()->back()->with('success', 'Person deleted successfully.');
+        if ($hasTransactions) {
+            return redirect()->route('tenant.accounts.index')
+                ->with('error', 'این حساب قابل حذف نیست، زیرا در تراکنش‌ها استفاده شده است.');
+        }
+
+        $account->delete();
+
+        return redirect()->route('tenant.accounts.index')
+            ->with('success', 'حساب با موفقیت حذف شد.');
     }
 }

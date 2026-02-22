@@ -16,4 +16,28 @@ class Account extends Model
         'bank',
         'description'
     ];
+
+    /**
+     * Transactions where this account is the source (from)
+     */
+    public function transactionsFrom()
+    {
+        return $this->hasMany(Transaction::class, 'from_account_id');
+    }
+
+    /**
+     * Transactions where this account is the destination (to)
+     */
+    public function transactionsTo()
+    {
+        return $this->hasMany(Transaction::class, 'to_account_id');
+    }
+
+    /**
+     * All transactions related to this account (from or to)
+     */
+    public function transactions()
+    {
+        return $this->transactionsFrom()->union($this->transactionsTo());
+    }
 }

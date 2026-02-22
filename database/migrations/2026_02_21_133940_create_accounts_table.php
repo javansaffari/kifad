@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->integer('balance')->default(0);
-            $table->enum('type', ['cash', 'bank', 'other']);
+            $table->string('type')->nullable();
             $table->string('bank')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();

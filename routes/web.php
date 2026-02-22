@@ -40,7 +40,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
 
     // Expenses (CRUD)
     Route::resource('expenses', ExpenseController::class)->names([
-        'index' => 'expenses',
+        'index' => 'expenses.index',
         'create' => 'expenses.create',
         'store' => 'expenses.store',
         'show' => 'expenses.show',
@@ -51,7 +51,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
 
     // Income (CRUD)
     Route::resource('income', IncomeController::class)->names([
-        'index' => 'income',
+        'index' => 'income.index',
         'create' => 'income.create',
         'store' => 'income.store',
         'show' => 'income.show',
@@ -62,7 +62,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
 
     // Transactions (CRUD)
     Route::resource('transactions', TransactionController::class)->names([
-        'index' => 'transactions',
+        'index' => 'transactions.index',
         'create' => 'transactions.create',
         'store' => 'transactions.store',
         'show' => 'transactions.show',
@@ -73,7 +73,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
 
     // Cheques (CRUD)
     Route::resource('cheques', ChequesController::class)->names([
-        'index' => 'cheques',
+        'index' => 'cheques.index',
         'create' => 'cheques.create',
         'store' => 'cheques.store',
         'show' => 'cheques.show',
@@ -84,7 +84,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
 
     // Loans (CRUD)
     Route::resource('loans', LoanController::class)->names([
-        'index' => 'loans',
+        'index' => 'loans.index',
         'create' => 'loans.create',
         'store' => 'loans.store',
         'show' => 'loans.show',
@@ -95,7 +95,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
 
     // Debts (CRUD)
     Route::resource('debts', DebtController::class)->names([
-        'index' => 'debts',
+        'index' => 'debts.index',
         'create' => 'debts.create',
         'store' => 'debts.store',
         'show' => 'debts.show',
@@ -106,7 +106,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
 
     // Accounts (CRUD)
     Route::resource('accounts', AccountController::class)->names([
-        'index' => 'accounts',
+        'index' => 'accounts.index',
         'create' => 'accounts.create',
         'store' => 'accounts.store',
         'show' => 'accounts.show',
