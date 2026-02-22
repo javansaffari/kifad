@@ -9,119 +9,100 @@
 @endsection
 
 @section('content')
-    @php
-        // Sample data
-        $accounts = [
-            (object) ['id' => 1, 'title' => 'کیف پول', 'balance' => 1500000],
-            (object) ['id' => 2, 'title' => 'بانک ملت', 'balance' => 5400000],
-            (object) ['id' => 3, 'title' => 'بانک ملی', 'balance' => 2500000],
-        ];
-        $person = ['علی', 'زهرا', 'مریم', 'رضا', 'سارا', 'کامران', 'نگار', 'پویا', 'مینا', 'امیر'];
-        $tags = ['شخصی', 'کاری', 'سایر'];
-
-        // Sample debts/receivables
-        $records = [];
-        foreach (range(1, 20) as $i) {
-            $type = rand(0, 1) ? 'بدهی' : 'طلب';
-            $account = $accounts[array_rand($accounts)]->title;
-            $person = $person[array_rand($person)];
-            $amount = rand(500000, 5000000);
-            $dueDate = '1402/07/' . str_pad(rand(10, 30), 2, '0', STR_PAD_LEFT);
-
-            $records[] = (object) [
-                'type' => $type,
-                'title' => "موضوع $i",
-                'person' => $person,
-                'account' => $account,
-                'amount' => $amount,
-                'due_date' => $dueDate,
-                'tags' => [$tags[array_rand($tags)]],
-                'desc' => "توضیح $i",
-                'paid' => rand(0, 1),
-            ];
-        }
-
-        // Chart data
-        $chartData = [];
-        foreach ($records as $r) {
-            $key = $r->paid ? 'تسویه شده' : 'تسویه نشده';
-            $chartData[$key] = ($chartData[$key] ?? 0) + $r->amount;
-        }
-
-        $totalAmount = array_sum(array_map(fn($r) => $r->amount, $records));
-        $totalPaid = array_sum(array_map(fn($r) => $r->paid ? $r->amount : 0, $records));
-        $totalUnpaid = $totalAmount - $totalPaid;
-    @endphp
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Form --}}
         <div class="rounded-xl border border-slate-200 bg-white p-5 ">
             <h2 class="text-lg font-semibold mb-4">ثبت بدهی / طلب جدید</h2>
-            <form class="space-y-4" method="POST" action="#">
+            <form class="space-y-4" method="POST" action="{{ route('tenant.debts.store') }}">
                 @csrf
                 <div>
                     <label class="block text-sm mb-2">نوع</label>
                     <div class="flex gap-4">
                         <label class="flex items-center gap-1">
-                            <input type="radio" name="type" value="بدهی" required checked>
+                            <input type="radio" name="type" value="borrow" required checked>
                             <span>بدهی (قرض گرفتن)</span>
                         </label>
                         <label class="flex items-center gap-1">
-                            <input type="radio" name="type" value="طلب" required>
+                            <input type="radio" name="type" value="lend" required>
                             <span>طلب (قرض دادن)</span>
                         </label>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm mb-2">عنوان</label>
-                    <input type="text" name="title" class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
-                </div>
-
-                <div>
                     <label class="block text-sm mb-2">مبلغ (ریال)</label>
-                    <input type="text" name="amount" class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                    <input type="text" name="amount" id="amount" value="{{ old('amount') }}"
+                        class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                    @error('amount')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm mb-2">تاریخ موعد</label>
-                    <input type="text" id="dueDate" name="due_date"
+                    <input type="text" id="dueDate" name="due_date" value="{{ old('due_date') }}"
                         class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                    @error('due_date')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm mb-2">حساب</label>
-                    <select name="account" class="w-full border-gray-300 rounded-lg shadow-sm">
+                    <select name="account_id" class="w-full border-gray-300 rounded-lg shadow-sm">
                         @foreach ($accounts as $acc)
-                            <option value="{{ $acc->id }}">{{ $acc->title }} (موجودی:
-                                {{ number_format($acc->balance) }} ریال)</option>
+                            <option value="{{ $acc->id }}">
+                                @if ($acc->balance < 0)
+                                    ⚠️
+                                @endif
+                                {{ $acc->title }} (موجودی: {{ number_format($acc->balance) }} ریال)
+                            </option>
                         @endforeach
                     </select>
+                    @error('account_id')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm mb-2">شخص</label>
-                    <select name="person" class="w-full border-gray-300 rounded-lg shadow-sm">
+                    <select name="person_id" class="w-full border-gray-300 rounded-lg shadow-sm">
                         <option value="">انتخاب کنید</option>
-                        @foreach ($person as $p)
-                            <option>{{ $p }}</option>
+                        @foreach ($persons as $p)
+                            <option value="{{ $p->id }}" @selected(old('person_id') == $p->id)>{{ $p->name }}</option>
                         @endforeach
                     </select>
+                    @error('person_id')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm mb-2">برچسب‌ها</label>
                     <select name="tags[]" class="select w-full border-gray-300 rounded-lg" multiple="multiple">
                         @foreach ($tags as $tag)
-                            <option value="{{ $tag }}">{{ $tag }}</option>
+                            <option value="{{ $tag }}" @selected(collect(old('tags'))->contains($tag))>{{ $tag }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-sm mb-2">توضیحات</label>
-                    <textarea name="desc" class="w-full border-gray-300 rounded-lg shadow-sm h-24"></textarea>
+                    <textarea name="description" class="w-full border-gray-300 rounded-lg shadow-sm h-24">{{ old('description') }}</textarea>
                 </div>
+
+                <div>
+                    <label class="block text-sm mb-2">ثبت همزمان در تراکنش‌ها</label>
+                    <label class="flex items-center gap-2 ">
+                        <input type="checkbox" name="create_transaction" value="1" @checked(old('create_transaction'))>
+                        <span class="text-sm">
+                            این بدهی/طلب همزمان به عنوان تراکنش ثبت شود
+                            <span class="text-gray-400">(در صورت تیک، موجودی حساب به‌روزرسانی می‌شود)</span>
+                        </span> </label>
+                </div>
+
+
 
                 <div>
                     <x-button class="text-[18px] w-full">ثبت</x-button>
@@ -140,125 +121,153 @@
     <div class="rounded-xl border border-slate-200 bg-white p-5  mt-6">
         <h2 class="text-lg font-semibold mb-4">لیست بدهی‌ها و طلب‌ها</h2>
 
-        {{-- Filters --}}
-        <div class="flex flex-col md:flex-row flex-wrap gap-4 items-start mb-4 bg-gray-50 p-4 rounded-lg">
-            <form action="#" class="flex flex-col md:flex-row flex-wrap gap-2 w-full md:flex-1">
-                <input type="text" placeholder="جستجو..."
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-64 px-3 py-2">
-                <select
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-48 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <option>همه نوع‌ها</option>
-                    <option>بدهی (قرض گرفتن)</option>
-                    <option>طلب (قرض دادن)
-                    </option>
-                </select>
-                <input type="text" placeholder="از تاریخ" id="fromDate" pattern="\d{4}/\d{2}/\d{2}"
-                    title="فرمت صحیح: YYYY/MM/DD"
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-32 px-3 py-2">
-                <input type="text" placeholder="تا تاریخ" id="toDate" pattern="\d{4}/\d{2}/\d{2}"
-                    title="فرمت صحیح: YYYY/MM/DD"
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-32 px-3 py-2">
-                <button type="submit"
-                    class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">اعمال</button>
-            </form>
-
-            <!-- Export to Excel -->
-            <div class="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
-                <button
-                    class="flex items-center gap-1 justify-center w-full md:w-auto px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4h16v16H4V4zm4 4l8 8m0-8l-8 8" />
-                    </svg>
-                    خروجی اکسل
-                </button>
-            </div>
-        </div>
-
         <div class="overflow-x-auto">
             <table class="min-w-full border text-sm text-gray-700 text-center">
                 <thead class="bg-gray-100">
                     <tr>
-                        @foreach (['نوع', 'عنوان', 'مبلغ (ریال)', 'تسویه شده (ریال)', 'باقیمانده (ریال)', 'تاریخ موعد', 'شخص', 'عملیات'] as $th)
-                            <th class="border px-2 py-2 whitespace-nowrap">{{ $th }}</th>
-                        @endforeach
+                        <th class="border px-2 py-2">نوع</th>
+                        <th class="border px-2 py-2">حساب</th>
+                        <th class="border px-2 py-2">مبلغ</th>
+                        <th class="border px-2 py-2">پرداخت شده</th>
+                        <th class="border px-2 py-2">باقی مانده</th>
+                        <th class="border px-2 py-2">وضعیت</th>
+                        <th class="border px-2 py-2">شخص</th>
+                        <th class="border px-2 py-2">توضیحات</th>
+                        <th class="border px-2 py-2">عملیات</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($records as $r)
+                    @foreach ($debts as $d)
                         @php
-                            $paidAmount = $r->paid ? $r->amount : 0;
-                            $remaining = $r->amount - $paidAmount;
+                            $remaining = $d->amount - $d->paid_amount;
+                            $status = $remaining == 0 ? 'تسویه شده' : ($d->paid_amount > 0 ? 'نیمه تسویه' : 'باز');
                         @endphp
                         <tr class="hover:bg-gray-50">
-                            <td class="border px-2 py-2 whitespace-nowrap">{{ $r->type }}</td>
-                            <td class="border px-2 py-2 whitespace-nowrap">{{ $r->title }}</td>
-                            <td class="border px-2 py-2 whitespace-nowrap">{{ number_format($r->amount) }}</td>
-                            <td class="border px-2 py-2 text-green-600 whitespace-nowrap">{{ number_format($paidAmount) }}
+                            <td class="border px-2 py-2">
+                                {{ $d->type == 'borrow' ? 'بدهی' : 'طلب' }}
                             </td>
-                            <td class="border px-2 py-2 text-red-600 whitespace-nowrap">{{ number_format($remaining) }}
+                            <td class="border px-2 py-2">{{ $d->account->title ?? '-' }}</td>
+                            <td class="border px-2 py-2">{{ number_format($d->amount) }}</td>
+                            <td class="border px-2 py-2 text-green-600">{{ number_format($d->paid_amount) }}</td>
+                            <td class="border px-2 py-2 text-red-600">{{ number_format($remaining) }}</td>
+                            <td class="border px-2 py-2">
+                                <span
+                                    class="
+@if ($status == 'تسویه شده') text-green-600
+@elseif($status == 'نیمه تسویه') text-yellow-600
+@else text-red-600 @endif
+font-bold">
+                                    {{ $status }}
+                                </span>
                             </td>
-                            <td class="border px-2 py-2 whitespace-nowrap">{{ $r->due_date }}</td>
-                            <td class="border px-2 py-2 whitespace-nowrap">{{ $r->person }}</td>
-                            <td class="border px-2 py-2 flex justify-center gap-2 whitespace-nowrap">
-                                <button class="text-green-600 hover:underline px-2 py-1 border rounded">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="size-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                    </svg>
+                            <td class="border px-2 py-2">{{ $d->person->name ?? '-' }}</td>
+                            <td class="border px-2 py-2">{{ $d->description ?? '-' }}</td>
+                            <td class="border px-2 py-2 flex justify-center gap-2">
 
-                                </button>
+                                @if ($remaining > 0)
+                                    <button class="open-pay-modal text-green-600 border px-2 py-1 rounded"
+                                        data-id="{{ $d->id }}" data-remaining="{{ $remaining }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                                        </svg>
 
-                                <!-- Edit button -->
-                                <button class="text-blue-600 hover:underline px-2 py-1 border rounded">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+
+
+                                    </button>
+                                @endif
+
+                                <a href="{{ route('tenant.debts.edit', $d->id) }}"
+                                    class="text-blue-600 hover:underline px-2 py-1 border rounded"><svg
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="size-4">
                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                                    </svg>
-                                </button>
-                                <!-- Delete button -->
-                                <button class="text-red-600 hover:underline px-2 py-1 border rounded">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="size-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                    </svg>
-                                </button>
+                                            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125">
+                                        </path>
+                                    </svg></a>
+                                <form action="{{ route('tenant.debts.destroy', $d->id) }}" method="POST"
+                                    class="inline-block delete-confirm">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="text-red-600 hover:underline px-2 py-1 border rounded"><svg
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0">
+                                            </path>
+                                        </svg></button>
+                                </form>
+
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
-                <tfoot class="bg-gray-50 font-semibold">
-                    @php
-                        $totalPaid = array_sum(array_map(fn($r) => $r->paid ? $r->amount : 0, $records));
-                        $totalRemaining = array_sum(array_map(fn($r) => $r->paid ? 0 : $r->amount, $records));
-                        $totalAmount = array_sum(array_map(fn($r) => $r->amount, $records));
-                    @endphp
-                    <tr>
-                        <td colspan="2" class="border px-2 py-2 text-center">جمع کل</td>
-                        <td class="border px-2 py-2 whitespace-nowrap">{{ number_format($totalAmount) }} ریال</td>
-                        <td class="border px-2 py-2 text-green-600 whitespace-nowrap">{{ number_format($totalPaid) }} ریال
-                        </td>
-                        <td class="border px-2 py-2 text-red-600 whitespace-nowrap">{{ number_format($totalRemaining) }}
-                            ریال</td>
-                        <td colspan="3"></td>
-                    </tr>
-                </tfoot>
             </table>
+        </div>
 
+
+        <!-- Pay Modal -->
+        <div id="payModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+
+            <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative">
+
+                <!-- Title -->
+                <h2 id="modalTitle" class="text-lg font-bold mb-4 text-center">
+                    پرداخت
+                </h2>
+
+                <form id="payForm" method="POST">
+                    @csrf
+
+                    <!-- Account Select -->
+                    <div class="mb-4">
+                        <label class="block text-sm mb-1">انتخاب حساب</label>
+                        <select name="account_id" required
+                            class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200">
+                            @foreach ($accounts as $acc)
+                                <option value="{{ $acc->id }}">
+                                    {{ $acc->title }} ({{ number_format($acc->balance) }} ریال)
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Remaining -->
+                    <div class="mb-2 text-sm text-gray-500">
+                        مبلغ باقی‌مانده:
+                        <span id="remainingAmount" class="font-bold text-red-600"></span>
+                        ریال
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="mb-4">
+                        <label class="block text-sm mb-1">مبلغ پرداخت</label>
+                        <input type="number" name="amount" id="payAmount" required min="1"
+                            class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-green-200">
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end gap-2">
+                        <button type="button" id="closeModal" class="px-4 py-2 border rounded-lg">
+                            انصراف
+                        </button>
+
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            ثبت عملیات
+                        </button>
+                    </div>
+                </form>
+
+            </div>
         </div>
 
         {{-- Record count --}}
         <div class="mt-4 flex flex-col md:flex-row justify-between text-sm text-gray-600 gap-2 md:gap-0">
-            <div>تعداد کل رکوردها: {{ count($records) }}</div>
-            <div>نمایش 1 تا {{ count($records) }} از {{ count($records) }}</div>
+            <div>تعداد کل رکوردها: {{ $debts->count() }}</div>
+            <div>نمایش 1 تا {{ $debts->count() }} از {{ $debts->count() }}</div>
         </div>
-
     </div>
 @endsection
 
@@ -271,6 +280,14 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
 
+
+            // Confirm before delete
+            $('.delete-confirm').on('submit', function(e) {
+                if (!confirm('آیا از حذف این شخص اطمینان دارید؟')) e.preventDefault();
+            });
+
+
+            $('.select').select2();
 
             const ctx = document.getElementById('chart');
             if (ctx) {
@@ -308,6 +325,53 @@
                     }
                 });
             }
+
+
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const modal = document.getElementById('payModal');
+            const form = document.getElementById('payForm');
+            const amountInput = document.getElementById('payAmount');
+            const remainingText = document.getElementById('remainingAmount');
+            const modalTitle = document.getElementById('modalTitle');
+
+            // open modal
+            document.querySelectorAll('.open-pay-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+
+                    const debtId = this.dataset.id;
+                    const remaining = this.dataset.remaining;
+                    const type = this.closest('tr')
+                        .querySelector('td')
+                        .innerText.trim();
+
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+
+                    remainingText.innerText = Number(remaining).toLocaleString();
+                    amountInput.max = remaining;
+                    amountInput.value = '';
+
+                    // change title based on type
+                    if (type === 'بدهی') {
+                        modalTitle.innerText = 'بازپرداخت بدهی';
+                    } else {
+                        modalTitle.innerText = 'دریافت طلب';
+                    }
+
+                    form.action = `/tenant/debts/${debtId}/pay`;
+                });
+            });
+
+            // close modal
+            document.getElementById('closeModal').addEventListener('click', function() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            });
+
         });
     </script>
 @endsection

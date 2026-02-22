@@ -114,6 +114,32 @@ class AccountController extends Controller
     }
 
     /**
+     * Display the specified account with its transactions.
+     */
+    public function show(Account $account)
+    {
+        // get transactions where this account is sender or receiver
+        $transactions = Transaction::where(function ($q) use ($account) {
+            $q->where('from_account_id', $account->id)
+                ->orWhere('to_account_id', $account->id);
+        })
+            ->with(['mainCategory', 'subCategory', 'person'])
+            ->latest()
+            ->paginate(15);
+
+        // calculate incoming & outgoing totals
+        $totalIncoming = $transactions->getCollection()->where('to_account_id', $account->id)->sum('amount');
+        $totalOutgoing = $transactions->getCollection()->where('from_account_id', $account->id)->sum('amount');
+
+        return view('tenant.accounts.show', compact(
+            'account',
+            'transactions',
+            'totalIncoming',
+            'totalOutgoing'
+        ));
+    }
+
+    /**
      * Show the form for editing an account.
      */
     public function edit(Account $account)

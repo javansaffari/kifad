@@ -63,3 +63,46 @@ $("#expenseDatapicker, #incomeDatapicker, #transferDatapicker, #datapicker, #sta
                 
 });
 
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('amount');
+
+    // Function to convert Persian/Arabic digits to English
+    function persianToEnglishDigits(str) {
+        const persianDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+        const arabicDigits  = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+        let result = str;
+        persianDigits.forEach((d,i) => { result = result.replaceAll(d, i); });
+        arabicDigits.forEach((d,i) => { result = result.replaceAll(d, i); });
+        return result;
+    }
+
+    // Function to format number with commas
+    function formatNumberWithCommas(value) {
+        let num = parseInt(value, 10);
+        if (isNaN(num)) return '';
+        return num.toLocaleString('en-US'); // comma as thousand separator
+    }
+
+    // Format on input
+    amountInput.addEventListener('input', function(e) {
+        let cursorPos = this.selectionStart; // preserve cursor
+        let raw = persianToEnglishDigits(this.value);
+        raw = raw.replace(/[^0-9]/g, ''); // remove non-digits
+        this.value = formatNumberWithCommas(raw);
+        // set cursor at the end
+        this.selectionStart = this.selectionEnd = this.value.length;
+    });
+
+    // Before submit, convert to plain number
+    const form = amountInput.closest('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            let raw = persianToEnglishDigits(amountInput.value);
+            raw = raw.replace(/,/g, ''); // remove commas
+            amountInput.value = raw; // assign clean value for DB
+        });
+    }
+});
+

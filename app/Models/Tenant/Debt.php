@@ -12,6 +12,7 @@ class Debt extends Model
     protected $fillable = [
         'type',
         'amount',
+        'paid_amount',
         'due_date',
         'account_id',
         'person_id',
@@ -33,5 +34,9 @@ class Debt extends Model
     public function person()
     {
         return $this->belongsTo(Person::class);
+    }
+    public function getRemainingAttribute()
+    {
+        return $this->amount - $this->paid_amount;
     }
 }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->json('tags')->nullable();
             $table->text('description')->nullable();
             $table->boolean('reminder')->default(false);
+            $table->integer('paid_amount')->default(0);
             $table->timestamps();
         });
     }

@@ -20,8 +20,8 @@
                 <!-- Amount -->
                 <div>
                     <label class="block text-sm font-medium mb-1">مبلغ (ریال)</label>
-                    <input type="text" name="amount" value="{{ old('amount', $expense->amount) }}" required
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <input type="text" name="amount" id="amount" value="{{ old('amount', $expense->amount) }}"
+                        required class="w-full border border-gray-300 rounded-lg px-3 py-2">
                     @error('amount')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -81,11 +81,10 @@
                     <label class="block text-sm mb-1">برچسب‌ها</label>
                     <select name="tags[]" class="select w-full border rounded-lg" multiple>
                         @foreach ($tags as $tag)
-                            84 <option value="{{ $tag }}" 85
-                                {{ in_array($tag, old('tags', $expense->tags ?? [])) ? 'selected' : '' }}>
-                                86 {{ $tag }}
-                                87 </option>
-                            88
+                            <option value="{{ $tag }}"
+                                {{ in_array($tag, old('tags', $income->tags ?? [])) ? 'selected' : '' }}>
+                                {{ $tag }}
+                            </option>
                         @endforeach
                     </select>
                     @error('tags')

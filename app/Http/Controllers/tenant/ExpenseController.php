@@ -86,19 +86,18 @@ class ExpenseController extends Controller
             'tags' => $tags,
         ]);
 
-        return redirect()->route('tenant.expenses')->with('success', 'هزینه با موفقیت ایجاد شد.');
+        return redirect()->route('tenant.expenses.index')->with('success', 'هزینه با موفقیت ایجاد شد.');
     }
 
     /** Show form to edit an expense */
-    public function edit(Transaction $transaction)
+    public function edit(Transaction $expense)
     {
         $categories = Category::where('type', 'expense')->get()->groupBy('parent_id');
         $accounts = Account::all();
         $persons = Person::all();
         $tags = Tag::pluck('name')->toArray();
 
-
-        return view('tenant.expenses.edit', compact('transaction', 'categories', 'accounts', 'persons', 'tags'));
+        return view('tenant.expenses.edit', compact('expense', 'categories', 'accounts', 'persons', 'tags'));
     }
 
     /** Update an expense */
@@ -145,7 +144,7 @@ class ExpenseController extends Controller
             'tags' => $tags,
         ]);
 
-        return redirect()->route('tenant.expenses')->with('success', 'هزینه با موفقیت به‌روزرسانی شد.');
+        return redirect()->route('tenant.expenses.index')->with('success', 'هزینه با موفقیت به‌روزرسانی شد.');
     }
 
     /** Delete an expense */
@@ -157,7 +156,7 @@ class ExpenseController extends Controller
         $account->save();
 
         $expense->delete();
-        return redirect()->route('tenant.expenses')->with('success', 'Expense deleted successfully.');
+        return redirect()->route('tenant.expenses.index')->with('success', 'Expense deleted successfully.');
     }
 
     /** Show a single expense */

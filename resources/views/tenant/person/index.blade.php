@@ -112,6 +112,11 @@
                 @endforelse
             </tbody>
         </table>
+        {{-- Record count --}}
+        <div class="mt-4 flex flex-col md:flex-row justify-between text-sm text-gray-600 gap-2 md:gap-0">
+            <div>تعداد کل رکوردها: {{ $persons->count() }}</div>
+            <div>نمایش 1 تا {{ $persons->count() }} از {{ $persons->count() }}</div>
+        </div>
     </div>
 
 @endsection

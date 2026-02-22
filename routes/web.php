@@ -103,6 +103,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
         'update' => 'debts.update',
         'destroy' => 'debts.destroy',
     ]);
+    Route::post('debts/{debt}/pay', [DebtController::class, 'pay'])->name('debts.pay');
 
     // Accounts (CRUD)
     Route::resource('accounts', AccountController::class)->names([

@@ -144,7 +144,7 @@ class IncomeController extends Controller
             'tags' => $tags,
         ]);
 
-        return redirect()->route('tenant.income')->with('success', 'درآمد با موفقیت به‌روزرسانی شد.');
+        return redirect()->route('tenant.income.index')->with('success', 'درآمد با موفقیت به‌روزرسانی شد.');
     }
 
     /** Delete an income */
@@ -156,7 +156,7 @@ class IncomeController extends Controller
         $account->save();
 
         $income->delete();
-        return redirect()->route('tenant.income')->with('success', 'درآمد حذف شد.');
+        return redirect()->route('tenant.income.index')->with('success', 'درآمد حذف شد.');
     }
 
     /** Show a single income */

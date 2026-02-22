@@ -86,7 +86,8 @@
                 <!-- Amount -->
                 <div>
                     <label class="block text-sm mb-2">مبلغ (ریال)</label>
-                    <input type="text" name="amount" class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                    <input type="text" name="amount" id="amount"
+                        class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
                 </div>
 
                 <!-- Serial -->

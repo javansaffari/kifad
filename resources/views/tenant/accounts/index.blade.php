@@ -105,6 +105,18 @@
                         <td class="border px-2 py-2">{{ $acc->bank }}</td>
                         <td class="border px-2 py-2">{{ $acc->description }}</td>
                         <td class="border px-2 py-2 flex justify-center gap-2">
+                            <a href="{{ route('tenant.accounts.show', $acc->id) }}"
+                                class="text-green-600 hover:underline px-2 py-1 border rounded">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+                                </svg>
+                            </a>
+
                             <a href="{{ route('tenant.accounts.edit', $acc->id) }}"
                                 class="text-blue-600 hover:underline px-2 py-1 border rounded">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -137,13 +149,14 @@
                 </tr>
             </tfoot>
         </table>
+        {{-- Record count --}}
+        <div class="mt-4 flex flex-col md:flex-row justify-between text-sm text-gray-600 gap-2 md:gap-0">
+            <div>تعداد کل رکوردها: {{ $accounts->count() }}</div>
+            <div>نمایش 1 تا {{ $accounts->count() }} از {{ $accounts->count() }}</div>
+        </div>
     </div>
 
-    {{-- Record count --}}
-    <div class="mt-4 flex flex-col md:flex-row justify-between text-sm text-gray-600 gap-2 md:gap-0">
-        <div>تعداد کل رکوردها: {{ $accounts->count() }}</div>
-        <div>نمایش 1 تا {{ $accounts->count() }} از {{ $accounts->count() }}</div>
-    </div>
+
 @endsection
 
 @section('scripts')

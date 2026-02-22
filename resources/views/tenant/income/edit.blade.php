@@ -20,8 +20,8 @@
                 <!-- Amount -->
                 <div>
                     <label class="block text-sm font-medium mb-1">مبلغ (ریال)</label>
-                    <input type="text" name="amount" value="{{ old('amount', $income->amount) }}" required
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    <input type="text" name="amount" id="amount" value="{{ old('amount', $income->amount) }}"
+                        required class="w-full border border-gray-300 rounded-lg px-3 py-2">
                     @error('amount')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror

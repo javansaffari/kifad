@@ -37,6 +37,7 @@
     </div>
 
     <script src="/assets/js/general.js"></script>
+
     @yield('scripts')
     @livewireScripts
 
