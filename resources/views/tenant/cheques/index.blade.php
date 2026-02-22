@@ -20,7 +20,7 @@
             (object) ['id' => 2, 'title' => 'بانک ملت', 'balance' => 5400000],
             (object) ['id' => 3, 'title' => 'بانک ملی', 'balance' => 2500000],
         ];
-        $people = ['علی', 'زهرا', 'مریم', 'رضا', 'سارا', 'کامران', 'نگار', 'پویا', 'مینا', 'امیر'];
+        $person = ['علی', 'زهرا', 'مریم', 'رضا', 'سارا', 'کامران', 'نگار', 'پویا', 'مینا', 'امیر'];
         $banks = ['بانک ملت', 'بانک ملی', 'بانک صادرات', 'بانک تجارت', 'بانک پارسیان'];
         $tags = ['دریافتی', 'صادر شده', 'سایر'];
 
@@ -29,7 +29,7 @@
         foreach (range(1, 20) as $i) {
             $type = $checkTypes[array_rand($checkTypes)];
             $account = $accounts[array_rand($accounts)]->title;
-            $person = $people[array_rand($people)];
+            $person = $person[array_rand($person)];
             $bank = $banks[array_rand($banks)];
             $amount = rand(500000, 5000000);
             $serial = rand(100000, 999999);
@@ -108,7 +108,7 @@
                     <label class="block text-sm mb-2">شخص</label>
                     <select name="person" class="w-full border-gray-300 rounded-lg shadow-sm">
                         <option value="">انتخاب کنید</option>
-                        @foreach ($people as $p)
+                        @foreach ($person as $p)
                             <option>{{ $p }}</option>
                         @endforeach
                     </select>

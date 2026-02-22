@@ -116,14 +116,14 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
     ]);
 
     // Persons (CRUD)
-    Route::resource('people', PersonController::class)->names([
-        'index' => 'people',
-        'create' => 'people.create',
-        'store' => 'people.store',
-        'show' => 'people.show',
-        'edit' => 'people.edit',
-        'update' => 'people.update',
-        'destroy' => 'people.destroy',
+    Route::resource('person', PersonController::class)->names([
+        'index' => 'person.index',
+        'create' => 'person.create',
+        'store' => 'person.store',
+        'show' => 'person.show',
+        'edit' => 'person.edit',
+        'update' => 'person.update',
+        'destroy' => 'person.destroy',
     ]);
 
     Route::prefix('tenant')->name('tenant.')->group(function () {

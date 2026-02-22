@@ -11,17 +11,23 @@ class Category extends Model
 
     protected $fillable = [
         'name',
-        'parent_id',
-        'type'
+        'parent_id', // for main/sub category relation
+        'type',      // 'expense' or 'income'
     ];
 
-    public function parent()
-    {
-        return $this->belongsTo(Category::class, 'parent_id');
-    }
-
-    public function children()
+    /**
+     * Get the subcategories of this category
+     */
+    public function subCategories()
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    /**
+     * Get the parent category (if this is a subcategory)
+     */
+    public function parentCategory()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
     }
 }
