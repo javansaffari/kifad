@@ -93,6 +93,12 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
         'destroy' => 'loans.destroy',
     ]);
 
+    Route::post('loans/installments/{installment}/undo', [LoanController::class, 'undoInstallment'])
+        ->name('loans.installments.undo');
+    Route::post('loans/installments/{installment}/pay', [LoanController::class, 'payInstallment'])
+        ->name('loans.installments.pay');
+
+
     // Debts (CRUD)
     Route::resource('debts', DebtController::class)->names([
         'index' => 'debts.index',

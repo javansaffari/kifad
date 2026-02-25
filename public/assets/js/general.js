@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
       // Initialize Persian datepickers for all relevant inputs
-$("#expenseDatapicker, #incomeDatapicker, #transferDatapicker, #datapicker, #startDate, #dueDate, #issueDate, #fromDate, #toDate").persianDatepicker({
+$("#expenseDatapicker, #incomeDatapicker, #transferDatapicker, #datapicker, #startDate, #dueDate, #issueDate, #fromDate, #toDate,#payDate").persianDatepicker({
     selectedBefore: true
 });
 
@@ -66,7 +66,7 @@ $("#expenseDatapicker, #incomeDatapicker, #transferDatapicker, #datapicker, #sta
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    const amountInput = document.getElementById('amount');
+    const amountInput = document.getElementById('amount'); 
 
     // Function to convert Persian/Arabic digits to English
     function persianToEnglishDigits(str) {

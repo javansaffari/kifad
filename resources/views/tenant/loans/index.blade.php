@@ -3,84 +3,37 @@
 @section('pageTitle', 'مدیریت تسهیلات')
 
 @section('styles')
-    <!-- Persian datepicker styles -->
     <link rel="stylesheet" href="/assets/css/persian-datepicker.css">
     <link rel="stylesheet" href="/assets/css/persianDatepicker-default.css">
-    <!-- Select2 dropdown styles -->
     <link rel="stylesheet" href="/assets/css/select2.min.css">
 @endsection
 
 @section('content')
-    @php
-        // Sample data
-        $banks = ['بانک ملت', 'بانک ملی', 'بانک صادرات', 'بانک تجارت', 'بانک پارسیان'];
-        $tags = ['کوتاه مدت', 'بلند مدت', 'سایر'];
-
-        // Sample loans
-        $loans = [];
-        foreach (range(1, 15) as $i) {
-            $title = "وام $i";
-            $amount = rand(5000000, 50000000);
-            $bank = $banks[array_rand($banks)];
-            $startDate = '1402/06/' . str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT);
-            $installmentsPaid = rand(0, 12);
-            $installmentsRemaining = 12 - $installmentsPaid;
-            $dueDay = rand(1, 28);
-            $dueType = 'ماهانه';
-            $installmentAmount = round($amount / 12);
-            $desc = "توضیح وام $i";
-            $tagsLoan = ['کوتاه مدت'];
-
-            $loans[] = (object) [
-                'title' => $title,
-                'amount' => $amount,
-                'bank' => $bank,
-                'start_date' => $startDate,
-                'installments_paid' => $installmentsPaid,
-                'installments_remaining' => $installmentsRemaining,
-                'due_day' => $dueDay,
-                'due_type' => $dueType,
-                'installment_amount' => $installmentAmount,
-                'desc' => $desc,
-                'tags' => $tagsLoan,
-            ];
-        }
-
-        // Prepare chart data by bank
-        $chartDataByBank = [];
-        foreach ($loans as $loan) {
-            $paidAmount = $loan->installments_paid * $loan->installment_amount;
-            $unpaidAmount = $loan->installments_remaining * $loan->installment_amount;
-
-            if (!isset($chartDataByBank[$loan->bank])) {
-                $chartDataByBank[$loan->bank] = ['paid' => 0, 'unpaid' => 0];
-            }
-            $chartDataByBank[$loan->bank]['paid'] += $paidAmount;
-            $chartDataByBank[$loan->bank]['unpaid'] += $unpaidAmount;
-        }
-
-        $banksLabels = array_keys($chartDataByBank);
-        $paidData = array_map(fn($v) => $v['paid'], $chartDataByBank);
-        $unpaidData = array_map(fn($v) => $v['unpaid'], $chartDataByBank);
-
-    @endphp
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
         {{-- Loan Form --}}
-        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
+        <div class="rounded-xl border border-slate-200 bg-white p-5">
             <h2 class="text-lg font-semibold mb-4">ثبت تسهیلات جدید</h2>
-            <form class="space-y-4" method="POST" action="#">
+            <form class="space-y-4" method="POST" action="{{ route('tenant.loans.store') }}">
                 @csrf
 
                 <div>
                     <label class="block text-sm mb-2">عنوان تسهیلات</label>
-                    <input type="text" name="title" class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                    <input type="text" name="title" value="{{ old('title') }}"
+                        class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                    @error('title')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm mb-2">مبلغ (ریال)</label>
-                    <input type="text" name="amount" id="amount"
-                        class="amount w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+
+                    <input type="text" name="amount" id="amount" value="{{ old('amount') }}"
+                        class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                    @error('amount')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div>
@@ -88,67 +41,72 @@
                     <select name="bank" class="w-full border-gray-300 rounded-lg shadow-sm">
                         <option value="">انتخاب کنید</option>
                         @foreach ($banks as $bank)
-                            <option>{{ $bank }}</option>
+                            <option value="{{ $bank }}" @selected(old('bank') == $bank)>{{ $bank }}</option>
                         @endforeach
                     </select>
+                    @error('bank')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
-                {{-- Start Date --}}
                 <div>
                     <label class="block text-sm mb-2">تاریخ شروع وام</label>
-                    <input type="text" id="startDate" name="start_date"
+                    <input type="text" id="startDate" name="start_date" value="{{ old('start_date') }}"
                         class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                    @error('start_date')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
-                {{-- Installments paid & remaining --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm mb-2">تعداد اقساط پرداخت شده</label>
                         <input type="number" name="installments_paid" min="0"
+                            value="{{ old('installments_paid', 0) }}"
                             class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                        @error('installments_paid')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-sm mb-2">تعداد اقساط باقی مانده</label>
                         <input type="number" name="installments_remaining" min="0"
+                            value="{{ old('installments_remaining', 0) }}"
                             class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                        @error('installments_remaining')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 
-                {{-- Due day & type --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm mb-2">سررسید اقساط (روز ماه/سال)</label>
                         <div class="flex gap-2">
-                            <input type="number" name="due_day" min="1" max="31"
+                            <input type="number" name="due_day" min="1" max="31" value="{{ old('due_day') }}"
                                 class="w-1/2 border-gray-300 rounded-lg shadow-sm px-3 py-2" placeholder="روز">
-                            <select name="due_type" class="w-1/2 border-gray-300 rounded-lg shadow-sm px-3 py-2">
-                                <option value="ماهانه">ماهانه</option>
-                                <option value="سالانه">سالانه</option>
+                            <select name="due_type" class="w-1/2 border-gray-300 rounded-lg shadow-sm">
+                                <option value="ماهانه" @selected(old('due_type') == 'ماهانه')>ماهانه</option>
+                                <option value="سالانه" @selected(old('due_type') == 'سالانه')>سالانه</option>
                             </select>
                         </div>
+                        @error('due_day')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-sm mb-2">مبلغ هر قسط (ریال)</label>
-                        <input type="text" name="installment_amount"
-                            class="amount w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+
+                        <input type="text" name="installment_amount" id="amount"
+                            value="{{ old('installment_amount') }}"
+                            class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
+                        @error('installment_amount')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 
-                {{-- Tags --}}
-                <div>
-                    <label class="block text-sm mb-2">برچسب‌ها</label>
-                    <select name="tags[]" class="select w-full border-gray-300 rounded-lg" multiple="multiple">
-                        @foreach ($tags as $tag)
-                            <option value="{{ $tag }}">{{ $tag }}</option>
-                        @endforeach
-                    </select>
-                </div>
 
-                {{-- Description --}}
-                <div>
-                    <label class="block text-sm mb-2">توضیحات</label>
-                    <textarea name="desc" class="w-full border-gray-300 rounded-lg shadow-sm h-24"></textarea>
-                </div>
 
                 <div>
                     <x-button class="text-[18px] w-full">ثبت تسهیلات</x-button>
@@ -157,56 +115,21 @@
         </div>
 
         {{-- Loan Chart --}}
-        <div class="rounded-xl border border-slate-200 bg-white p-5 ">
+        <div class="rounded-xl border border-slate-200 bg-white p-5">
             <h2 class="text-lg font-semibold mb-4">تقسیم‌بندی تسهیلات بر اساس بانک</h2>
-            <canvas id="loanChart" height="600"></canvas>
+            <canvas id="loanChart" height="100"></canvas>
         </div>
+
     </div>
 
     {{-- Loans Table --}}
-    <div class="rounded-xl border border-slate-200 bg-white p-5  mt-6">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 mt-6">
         <h2 class="text-lg font-semibold mb-4">لیست تسهیلات</h2>
-
-        <div class="flex flex-col md:flex-row flex-wrap gap-4 items-start mb-4 bg-gray-50 p-4 rounded-lg">
-            <form action="#" class="flex flex-col md:flex-row flex-wrap gap-2 w-full md:flex-1">
-                <!-- Search input -->
-                <input type="text" placeholder="جستجو..."
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-64 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-
-                <!-- Date filters -->
-                <input type="text" placeholder="از تاریخ" id="fromDate" pattern="\d{4}/\d{2}/\d{2}"
-                    title="فرمت صحیح: YYYY/MM/DD"
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-32 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <input type="text" placeholder="تا تاریخ" id="toDate" pattern="\d{4}/\d{2}/\d{2}"
-                    title="فرمت صحیح: YYYY/MM/DD"
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-32 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-
-                <!-- Apply filters button -->
-                <button type="submit"
-                    class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                    اعمال
-                </button>
-            </form>
-
-            <!-- Export to Excel -->
-            <div class="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
-                <button
-                    class="flex items-center gap-1 justify-center w-full md:w-auto px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4h16v16H4V4zm4 4l8 8m0-8l-8 8" />
-                    </svg>
-                    خروجی اکسل
-                </button>
-            </div>
-        </div>
-
         <div class="overflow-x-auto">
             <table class="min-w-full border text-sm text-gray-700 text-center">
                 <thead class="bg-gray-100">
                     <tr>
-                        @foreach (['عنوان وام', 'مبلغ (ریال)', 'اقساط پرداخت شده', 'اقساط باقی مانده', 'بدهی مانده (ریال)', 'مبلغ هر قسط', 'بانک', 'توضیحات', 'عملیات'] as $th)
+                        @foreach (['عنوان وام', 'مبلغ (ریال)', 'اقساط پرداخت شده', 'اقساط باقی مانده', 'بدهی مانده (ریال)', 'مبلغ هر قسط', 'بانک', 'عملیات'] as $th)
                             <th class="border px-2 py-2 whitespace-nowrap">{{ $th }}</th>
                         @endforeach
                     </tr>
@@ -216,44 +139,53 @@
                         <tr class="hover:bg-gray-50">
                             <td class="border px-2 py-2 whitespace-nowrap">{{ $loan->title }}</td>
                             <td class="border px-2 py-2 whitespace-nowrap text-blue-600 font-semibold">
-                                {{ number_format($loan->amount) }}</td>
+                                {{ number_format($loan->amount) }}
+                            </td>
                             <td class="border px-2 py-2 whitespace-nowrap">{{ $loan->installments_paid }}</td>
                             <td class="border px-2 py-2 whitespace-nowrap">{{ $loan->installments_remaining }}</td>
                             <td class="border px-2 py-2 whitespace-nowrap text-red-600 font-semibold">
-                                {{ number_format($loan->installments_remaining * $loan->installment_amount) }}</td>
+                                {{ number_format($loan->installments_remaining * $loan->installment_amount) }}
+                            </td>
                             <td class="border px-2 py-2 whitespace-nowrap">{{ number_format($loan->installment_amount) }}
                             </td>
                             <td class="border px-2 py-2 whitespace-nowrap">{{ $loan->bank }}</td>
-                            <td class="border px-2 py-2 whitespace-nowrap">{{ $loan->desc }}</td>
+
                             <td class="border px-2 py-2 flex justify-center gap-2 whitespace-nowrap">
-                                <!-- View button -->
-                                <button class="text-green-600 hover:underline px-2 py-1 border rounded">
+                                {{-- View --}}
+                                <a href="{{ route('tenant.loans.show', $loan) }}"
+                                    class="text-green-600 hover:underline px-2 py-1 border rounded">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="size-4">
                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z">
+                                        </path>
                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                    </svg>
-
-                                </button>
-
-                                <!-- Edit button -->
-                                <button class="text-blue-600 hover:underline px-2 py-1 border rounded">
+                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+                                    </svg> </a>
+                                {{-- Edit --}}
+                                <a href="{{ route('tenant.loans.edit', $loan) }}"
+                                    class="text-blue-600 hover:underline px-2 py-1 border rounded">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="size-4">
                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                                            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125">
+                                        </path>
                                     </svg>
-                                </button>
-                                <!-- Delete button -->
-                                <button class="text-red-600 hover:underline px-2 py-1 border rounded">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="size-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                    </svg>
-                                </button>
+                                </a>
+                                {{-- Delete --}}
+                                <form action="{{ route('tenant.loans.destroy', $loan) }}" method="POST"
+                                    onsubmit="return confirm('آیا مطمئن هستید؟');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:underline px-2 py-1 border rounded">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @endforeach
@@ -267,7 +199,6 @@
             <div>نمایش 1 تا {{ count($loans) }} از {{ count($loans) }}</div>
         </div>
     </div>
-
 @endsection
 
 @section('scripts')
@@ -277,84 +208,11 @@
     <script src="/assets/js/persianDatepicker.min.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-
-
-            // Chart.js pie chart
-            const ctx = document.getElementById('loanChart');
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: @json($banksLabels),
-                        datasets: [{
-                                label: 'تسهیلات تسویه شده (ریال)',
-                                data: @json($paidData),
-                                backgroundColor: '#34d399'
-                            },
-                            {
-                                label: 'تسهیلات تسویه نشده (ریال)',
-                                data: @json($unpaidData),
-                                backgroundColor: '#f87171'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    font: {
-                                        family: 'YekanBakh',
-                                        size: 14
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                titleFont: {
-                                    family: 'YekanBakh',
-                                    size: 14
-                                },
-                                bodyFont: {
-                                    family: 'YekanBakh',
-                                    size: 12
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        family: 'YekanBakh',
-                                        size: 12
-                                    },
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        family: 'YekanBakh',
-                                        size: 12
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-
-
-
-
-
-
-
-
-
-
+        $(document).ready(function() {
+            // Confirm before delete
+            $('.delete-confirm').on('submit', function(e) {
+                if (!confirm('آیا از حذف این تسهیلات اطمینان دارید؟')) e.preventDefault();
+            });
         });
     </script>
 @endsection

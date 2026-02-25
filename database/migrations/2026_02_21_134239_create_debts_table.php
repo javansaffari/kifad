@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('debts', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['borrow', 'lend']);
-            $table->integer('amount');
+            $table->bigInteger('amount');
             $table->date('due_date');
             $table->foreignId('account_id')->constrained('accounts');
             $table->foreignId('person_id')->constrained('persons');
             $table->json('tags')->nullable();
             $table->text('description')->nullable();
             $table->boolean('reminder')->default(false);
-            $table->integer('paid_amount')->default(0);
+            $table->bigInteger('paid_amount')->default(0);
             $table->timestamps();
         });
     }

@@ -23,4 +23,23 @@ class Loan extends Model
     protected $casts = [
         'reminder' => 'boolean'
     ];
+
+
+    /**
+     * Loan installments relationship
+     * A loan has many installments
+     */
+    public function installments()
+    {
+        return $this->hasMany(LoanInstallment::class);
+    }
+
+    /**
+     * Account relationship
+     * The account where loan money is received
+     */
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
 }

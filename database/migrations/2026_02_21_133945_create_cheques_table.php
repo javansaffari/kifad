@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('cheques', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['issued', 'received']);
-            $table->integer('amount');
+            $table->bigInteger('amount');
             $table->string('serial_number');
             $table->string('sayad_id');
             $table->foreignId('person_id')->constrained('persons');

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['expense', 'income', 'transfer']);
-            $table->integer('amount');
+            $table->bigInteger('amount');
             $table->date('date');
             $table->foreignId('main_category_id')->constrained('categories');
             $table->foreignId('sub_category_id')->nullable()->constrained('categories');
