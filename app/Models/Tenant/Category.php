@@ -30,4 +30,16 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($category) {
+
+            $protectedIds = [7, 10, 11, 13, 90, 91, 92, 13];
+
+            if (in_array($category->id, $protectedIds)) {
+                throw new \Exception('این دسته‌بندی قابل حذف نیست.');
+            }
+        });
+    }
 }

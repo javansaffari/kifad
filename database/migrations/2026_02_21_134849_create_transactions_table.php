@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->enum('type', ['expense', 'income', 'transfer']);
             $table->bigInteger('amount');
-            $table->date('date');
+            $table->string('date', 10);
             $table->foreignId('main_category_id')->constrained('categories');
             $table->foreignId('sub_category_id')->nullable()->constrained('categories');
             $table->json('tags')->nullable();

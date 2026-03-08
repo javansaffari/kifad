@@ -11,101 +11,7 @@
 @endsection
 
 @section('content')
-    @php
-        // Sample categories, tags, accounts, and people data
-        $expenseCategories = [
-            'خوراک' => ['رستوران', 'مواد غذایی', 'میوه و سبزیجات'],
-            'حمل و نقل' => ['بنزین', 'تاکسی', 'اتوبوس'],
-            'قبوض' => ['آب', 'برق', 'گاز', 'اینترنت'],
-            'سلامت' => ['دارو', 'دکتر', 'ویزیت'],
-            'سرگرمی' => ['کتاب', 'سینما', 'ورزش'],
-        ];
 
-        $incomeCategories = [
-            'حقوق' => ['ماهانه', 'پاداش', 'اضافه کار'],
-            'سرمایه گذاری' => ['بورس', 'رمزارز', 'سپرده بانکی'],
-            'فروش' => ['محصولات', 'خدمات'],
-            'هدیه' => ['خانواده', 'دوستان'],
-        ];
-
-        $expenseTags = ['کار', 'خانواده', 'تفریح', 'سفر', 'سایر'];
-        $incomeTags = ['حقوق', 'سرمایه گذاری', 'فروش', 'هدیه', 'سایر'];
-
-        $accounts = [
-            (object) ['id' => 1, 'title' => 'کیف پول', 'balance' => 1500000],
-            (object) ['id' => 2, 'title' => 'بانک ملت', 'balance' => 5400000],
-            (object) ['id' => 3, 'title' => 'بانک ملی', 'balance' => 2500000],
-        ];
-
-        $people = ['علی', 'زهرا', 'مریم', 'رضا', 'سارا', 'کامران', 'نگار', 'پویا', 'مینا', 'امیر'];
-
-        // Sample transactions
-        $transactions = [];
-        foreach (range(1, 20) as $i) {
-            $type = ['expense', 'income', 'transfer'][array_rand(['expense', 'income', 'transfer'])];
-            $date = '1402/06/' . str_pad(rand(10, 30), 2, '0', STR_PAD_LEFT);
-            $account = $accounts[array_rand($accounts)]->title;
-            $person = $people[array_rand($people)];
-            $amount = rand(10000, 500000);
-
-            if ($type === 'expense') {
-                $mainCat = array_rand($expenseCategories);
-                $subCat = $expenseCategories[$mainCat][array_rand($expenseCategories[$mainCat])];
-                $transactions[] = (object) [
-                    'type' => 'expense',
-                    'date' => $date,
-                    'amount' => $amount,
-                    'category' => $mainCat,
-                    'subcategory' => $subCat,
-                    'account' => $account,
-                    'person' => $person,
-                    'desc' => "هزینه $i",
-                ];
-            } elseif ($type === 'income') {
-                $mainCat = array_rand($incomeCategories);
-                $subCat = $incomeCategories[$mainCat][array_rand($incomeCategories[$mainCat])];
-                $transactions[] = (object) [
-                    'type' => 'income',
-                    'date' => $date,
-                    'amount' => $amount,
-                    'category' => $mainCat,
-                    'subcategory' => $subCat,
-                    'account' => $account,
-                    'person' => $person,
-                    'desc' => "درآمد $i",
-                ];
-            } else {
-                // transfer
-                $toAccount = $accounts[array_rand($accounts)]->title;
-                $transactions[] = (object) [
-                    'type' => 'transfer',
-                    'date' => $date,
-                    'amount' => $amount,
-                    'from' => $account,
-                    'to' => $toAccount,
-                    'desc' => "انتقال $i",
-                ];
-            }
-        }
-
-        $categories = [];
-        $incomeData = [];
-        $expenseData = [];
-
-        foreach ($transactions as $t) {
-            if ($t->type === 'income') {
-                $incomeData[$t->category] = ($incomeData[$t->category] ?? 0) + $t->amount;
-                if (!in_array($t->category, $categories)) {
-                    $categories[] = $t->category;
-                }
-            } elseif ($t->type === 'expense') {
-                $expenseData[$t->category] = ($expenseData[$t->category] ?? 0) + $t->amount;
-                if (!in_array($t->category, $categories)) {
-                    $categories[] = $t->category;
-                }
-            }
-        }
-    @endphp
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Income Form --}}
@@ -129,253 +35,345 @@
             <div id="transactionForms">
                 {{-- Expense Form --}}
 
-                <form class="transaction-form expense-form space-y-4" id="expense" method="POST" action="#">
+                <form class="transaction-form expense-form space-y-4" method="POST" id="expense"
+                    action="{{ route('tenant.expenses.store') }}">
                     @csrf
-                    <!-- Amount input -->
-                    <div class="mb-4">
-                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
-                            مبلغ (ریال)
-                        </label>
-                        <input type="text" name="amount" id="amount" required
-                            class="amount w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <span id="amountError" class="text-red-600 text-sm mt-1 block"></span>
+
+                    <!-- Amount -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">مبلغ (ریال)</label>
+                        <input type="text" name="amount" id="expenseAmount" value="{{ old('amount') }}" required
+                            class="amount w-full border border-gray-300 rounded-lg px-3 py-2">
+                        @error('amount')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Date input with Persian datepicker -->
-                    <div class="mb-4">
-                        <label for="datapicker" class="block text-sm font-medium text-gray-700 mb-1">
-                            تاریخ
-                        </label>
-                        <input type="text" id="expenseDatapicker" name="date" required
-                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">تاریخ</label>
+                        <input type="text" id="datapicker" name="date" value="{{ old('date') }}" required
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        @error('date')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Category selection -->
+                    <!-- Categories -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-sm mb-2">دسته‌بندی اصلی</label>
-                            <select id="expenseMainCategory" name="category" required
+                            <label class="block text-sm mb-1">دسته‌بندی اصلی</label>
+                            <select id="mainCategory" name="category" required
                                 class="w-full border-gray-300 rounded-lg shadow-sm">
                                 <option value="">انتخاب کنید</option>
-                                @foreach (array_keys($expenseCategories) as $cat)
-                                    <option value="{{ $cat }}">{{ $cat }}</option>
+                                @foreach ($expenseCategories[null] ?? [] as $expcat)
+                                    <option value="{{ $expcat->id }}"
+                                        {{ old('category') == $expcat->id ? 'selected' : '' }}>
+                                        {{ $expcat->name }}</option>
                                 @endforeach
                             </select>
+                            @error('category')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
 
-                        <!-- Subcategory selection -->
                         <div>
-                            <label class="block text-sm mb-2">زیر دسته</label>
-                            <select id="expenseSubCategory" name="expenseSubCategory"
-                                class="w-full border-gray-300 rounded-lg shadow-sm">
+                            <label class="block text-sm mb-1">زیر دسته</label>
+                            <select id="subCategory" name="subcategory" class="w-full border-gray-300 rounded-lg shadow-sm">
                                 <option value="">انتخاب کنید</option>
+                                @if (old('category') && isset($categories[old('category')]))
+                                    @foreach ($categories[old('category')] as $sub)
+                                        <option value="{{ $sub->id }}"
+                                            {{ old('subcategory') == $sub->id ? 'selected' : '' }}>
+                                            {{ $sub->name }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
+                            @error('subcategory')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
 
-                    <!-- Tags selection -->
+                    <!-- Tags -->
                     <div>
-                        <label class="block text-sm mb-2">برچسب‌ها</label>
-                        <select name="expenseTags[]" class="expensSelect w-full border-gray-300 rounded-lg"
-                            multiple="multiple">
-                            @foreach ($expenseTags as $tag)
-                                <option value="{{ $tag }}">{{ $tag }}</option>
+                        <label class="block text-sm mb-1">برچسب‌ها</label>
+                        <select name="tags[]" class="select w-full border rounded-lg" multiple>
+                            @foreach ($tags as $tag)
+                                <option value="{{ $tag }}"
+                                    {{ collect(old('tags'))->contains($tag) ? 'selected' : '' }}>
+                                    {{ $tag }}
+                                </option>
                             @endforeach
                         </select>
+                        @error('tags')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Account selection -->
+                    <!-- Account -->
                     <div>
-                        <label class="block text-sm mb-2">برداشت از حساب</label>
-                        <select id="account" name="account" required class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <label class="block text-sm mb-1">برداشت از حساب</label>
+                        <select name="account" required class="w-full border-gray-300 rounded-lg shadow-sm">
                             @foreach ($accounts as $acc)
-                                <option value="{{ $acc->id }}">{{ $acc->title }} (موجودی:
-                                    {{ number_format($acc->balance) }} ریال)</option>
+                                <option value="{{ $acc->id }}" {{ old('account') == $acc->id ? 'selected' : '' }}>
+                                    {{ $acc->title }} (موجودی: {{ number_format($acc->balance) }} ریال)
+                                </option>
                             @endforeach
                         </select>
+                        @error('account')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Person selection -->
+                    <!-- Person -->
                     <div>
-                        <label class="block text-sm mb-2">شخص</label>
-                        <select id="person" name="person" class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <label class="block text-sm mb-1">شخص</label>
+                        <select name="person" class="w-full border-gray-300 rounded-lg shadow-sm">
                             <option value="">انتخاب کنید</option>
-                            @foreach ($people as $p)
-                                <option>{{ $p }}</option>
+                            @foreach ($persons as $p)
+                                <option value="{{ $p->id }}" {{ old('person') == $p->id ? 'selected' : '' }}>
+                                    {{ $p->name }}
+                                </option>
                             @endforeach
                         </select>
+                        @error('person')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Description input -->
+                    <!-- Description -->
                     <div>
-                        <label class="block text-sm mb-2">توضیحات</label>
-                        <textarea name="desc" class="w-full border-gray-300 rounded-lg shadow-sm h-24"></textarea>
+                        <label class="block text-sm mb-1">توضیحات</label>
+                        <textarea name="desc" class="w-full border-gray-300 rounded-lg shadow-sm h-24">{{ old('desc') }}</textarea>
+                        @error('desc')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Submit button -->
                     <div>
-                        <button
-                            class="w-full py-2 bg-red-600 hover:bg-red-700 transition-colors duration-200 text-white rounded">
-                            ثبت تراکنش هزینه
-                        </button>
+                        <x-button class="w-full text-[18px]">ثبت هزینه</x-button>
                     </div>
                 </form>
 
                 {{-- Income Form --}}
-                <form class="transaction-form income-form space-y-4 hidden" id="income" method="POST" action="#">
+                <form class="transaction-form income-form space-y-4 hidden" id="income" method="POST"
+                    action="{{ route('tenant.income.store') }}">
                     @csrf
-                    <!-- Amount input -->
-                    <div class="mb-4">
-                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
-                            مبلغ (ریال)
-                        </label>
-                        <input type="text" name="amount" id="amount" required
-                            class="amount w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <span id="amountError" class="text-red-600 text-sm mt-1 block"></span>
+
+                    <!-- Amount -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">مبلغ (ریال)</label>
+                        <input type="text" name="amount" id="incomeAmount" value="{{ old('amount') }}" required
+                            class="amount w-full border border-gray-300 rounded-lg px-3 py-2">
+                        @error('amount')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Date input with Persian datepicker -->
-                    <div class="mb-4">
-                        <label for="datapicker" class="block text-sm font-medium text-gray-700 mb-1">
-                            تاریخ
-                        </label>
-                        <input type="text" id="incomeDatapicker" name="date" required
-                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">تاریخ</label>
+                        <input type="text" id="datapicker" name="date" value="{{ old('date') }}" required
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        @error('date')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Category selection -->
+                    <!-- Categories -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-sm mb-2">دسته‌بندی اصلی</label>
-                            <select id="incomeMainCategory" name="category" required
+                            <label class="block text-sm mb-1">دسته‌بندی اصلی</label>
+                            <select id="mainCategory" name="category" required
                                 class="w-full border-gray-300 rounded-lg shadow-sm">
                                 <option value="">انتخاب کنید</option>
-                                @foreach (array_keys($incomeCategories) as $cat)
-                                    <option value="{{ $cat }}">{{ $cat }}</option>
+                                @foreach ($incomeCategories[null] ?? [] as $cat)
+                                    <option value="{{ $cat->id }}"
+                                        {{ old('category') == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }}</option>
                                 @endforeach
                             </select>
+                            @error('category')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
 
-                        <!-- Subcategory selection -->
                         <div>
-                            <label class="block text-sm mb-2">زیر دسته</label>
-                            <select id="incomeSubCategory" name="incomeSubCategory"
+                            <label class="block text-sm mb-1">زیر دسته</label>
+                            <select id="subCategory" name="subcategory"
                                 class="w-full border-gray-300 rounded-lg shadow-sm">
                                 <option value="">انتخاب کنید</option>
+                                @if (old('category') && isset($categories[old('category')]))
+                                    @foreach ($categories[old('category')] as $sub)
+                                        <option value="{{ $sub->id }}"
+                                            {{ old('subcategory') == $sub->id ? 'selected' : '' }}>
+                                            {{ $sub->name }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
+                            @error('subcategory')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
 
-                    <!-- Tags selection -->
+                    <!-- Tags -->
                     <div>
-                        <label class="block text-sm mb-2">برچسب‌ها</label>
-                        <select name="incomeTags[]" class="incomSelect w-full border-gray-300 rounded-lg"
-                            multiple="multiple">
-                            @foreach ($incomeTags as $tag)
-                                <option value="{{ $tag }}">{{ $tag }}</option>
+                        <label class="block text-sm mb-1">برچسب‌ها</label>
+                        <select name="tags[]" class="select w-full border rounded-lg" multiple>
+                            @foreach ($tags as $tag)
+                                <option value="{{ $tag }}"
+                                    {{ collect(old('tags'))->contains($tag) ? 'selected' : '' }}>
+                                    {{ $tag }}
+                                </option>
                             @endforeach
                         </select>
+                        @error('tags')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Account selection -->
+                    <!-- Account -->
                     <div>
-                        <label class="block text-sm mb-2">واریز به حساب</label>
-                        <select id="account" name="account" required
-                            class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <label class="block text-sm mb-1">واریز به حساب</label>
+                        <select name="account" required class="w-full border-gray-300 rounded-lg shadow-sm">
                             @foreach ($accounts as $acc)
-                                <option value="{{ $acc->id }}">{{ $acc->title }} (موجودی:
-                                    {{ number_format($acc->balance) }} ریال)</option>
+                                <option value="{{ $acc->id }}" {{ old('account') == $acc->id ? 'selected' : '' }}>
+                                    {{ $acc->title }} (موجودی: {{ number_format($acc->balance) }} ریال)
+                                </option>
                             @endforeach
                         </select>
+                        @error('account')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Person selection -->
+                    <!-- Person -->
                     <div>
-                        <label class="block text-sm mb-2">شخص</label>
-                        <select id="person" name="person" class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <label class="block text-sm mb-1">شخص</label>
+                        <select name="person" class="w-full border-gray-300 rounded-lg shadow-sm">
                             <option value="">انتخاب کنید</option>
-                            @foreach ($people as $p)
-                                <option>{{ $p }}</option>
+                            @foreach ($persons as $p)
+                                <option value="{{ $p->id }}" {{ old('person') == $p->id ? 'selected' : '' }}>
+                                    {{ $p->name }}
+                                </option>
                             @endforeach
                         </select>
+                        @error('person')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Description input -->
+                    <!-- Description -->
                     <div>
-                        <label class="block text-sm mb-2">توضیحات</label>
-                        <textarea name="desc" class="w-full border-gray-300 rounded-lg shadow-sm h-24"></textarea>
+                        <label class="block text-sm mb-1">توضیحات</label>
+                        <textarea name="desc" class="w-full border-gray-300 rounded-lg shadow-sm h-24">{{ old('desc') }}</textarea>
+                        @error('desc')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Submit button -->
                     <div>
-                        <button
-                            class="w-full py-2 bg-green-600 hover:bg-green-700 transition-colors duration-200 text-white rounded">
-                            ثبت تراکنش درآمد
-                        </button>
+                        <x-button class="w-full text-[18px]">ثبت درآمد</x-button>
                     </div>
                 </form>
 
                 {{-- Transfer Form --}}
+                {{-- Transfer Form --}}
                 <form class="transaction-form transfer-form space-y-4 hidden" id="transfer" method="POST"
-                    action="#">
+                    action="{{ route('tenant.transactions.storeTransfer') }}">
                     @csrf
+                    <input type="hidden" name="type" value="transfer">
 
-
-                    <!-- Amount input -->
-                    <div class="mb-4">
-                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
-                            مبلغ (ریال)
-                        </label>
-                        <input type="text" name="amount" id="amount" required
-                            class="amount w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <span id="amountError" class="text-red-600 text-sm mt-1 block"></span>
-                    </div>
-
-                    <!-- Date input with Persian datepicker -->
-                    <div class="mb-4">
-                        <label for="datapicker" class="block text-sm font-medium text-gray-700 mb-1">
-                            تاریخ
-                        </label>
-                        <input type="text" id="transferDatapicker" name="date" required
-                            class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    </div>
-
-
-                    <!-- Account selection -->
+                    <!-- Amount -->
                     <div>
-                        <label class="block text-sm mb-2">برداشت از حساب</label>
-                        <select id="fromAccount" name="fromAccount" required
-                            class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <label class="block text-sm font-medium mb-1">مبلغ (ریال)</label>
+                        <input type="text" name="amount" id="transferAmount" value="{{ old('amount') }}" required
+                            class="amount w-full border border-gray-300 rounded-lg px-3 py-2">
+                        @error('amount')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">تاریخ</label>
+                        <input type="text" id="transferDatapicker" name="date" value="{{ old('date') }}"
+                            required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        @error('date')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- From Account -->
+                    <div>
+                        <label class="block text-sm mb-1">برداشت از حساب</label>
+                        <select name="from_account_id" required class="w-full border-gray-300 rounded-lg shadow-sm">
+                            <option value="">انتخاب کنید</option>
                             @foreach ($accounts as $acc)
-                                <option value="{{ $acc->id }}">{{ $acc->title }} (موجودی:
-                                    {{ number_format($acc->balance) }} ریال)</option>
+                                <option value="{{ $acc->id }}"
+                                    {{ old('from_account_id') == $acc->id ? 'selected' : '' }}>
+                                    {{ $acc->title }} (موجودی: {{ number_format($acc->balance) }} ریال)
+                                </option>
                             @endforeach
                         </select>
+                        @error('from_account_id')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Account selection -->
+                    <!-- To Account -->
                     <div>
-                        <label class="block text-sm mb-2">واریز به حساب</label>
-                        <select id="toAccount" name="toAccount" required
-                            class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <label class="block text-sm mb-1">واریز به حساب</label>
+                        <select name="to_account_id" required class="w-full border-gray-300 rounded-lg shadow-sm">
+                            <option value="">انتخاب کنید</option>
                             @foreach ($accounts as $acc)
-                                <option value="{{ $acc->id }}">{{ $acc->title }} (موجودی:
-                                    {{ number_format($acc->balance) }} ریال)</option>
+                                <option value="{{ $acc->id }}"
+                                    {{ old('to_account_id') == $acc->id ? 'selected' : '' }}>
+                                    {{ $acc->title }} (موجودی: {{ number_format($acc->balance) }} ریال)
+                                </option>
                             @endforeach
                         </select>
+                        @error('to_account_id')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <!-- Description input -->
+                    <!-- Person -->
                     <div>
-                        <label class="block text-sm mb-2">توضیحات</label>
-                        <textarea name="desc" class="w-full border-gray-300 rounded-lg shadow-sm h-24"></textarea>
+                        <label class="block text-sm mb-1">شخص </label>
+                        <select name="person_id" class="w-full border-gray-300 rounded-lg shadow-sm">
+                            <option value="">انتخاب کنید</option>
+                            @foreach ($persons as $p)
+                                <option value="{{ $p->id }}" {{ old('person_id') == $p->id ? 'selected' : '' }}>
+                                    {{ $p->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('person_id')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <button
-                        class="w-full py-2 bg-blue-600 hover:bg-blue-700 transition-colors duration-200 text-white rounded">
-                        ثبت تراکنش انتقال
-                    </button>
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm mb-1">توضیحات</label>
+                        <textarea name="description" class="w-full border-gray-300 rounded-lg shadow-sm h-24">{{ old('description') }}</textarea>
+                        @error('description')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <x-button class="w-full text-[18px]">ثبت تراکنش انتقال وجه</x-button>
+                    </div>
                 </form>
+
+
             </div>
         </div>
 
@@ -390,53 +388,6 @@
     {{-- Incomes Table --}}
     <div class="rounded-xl border border-slate-200 bg-white p-5  mt-6">
         <h2 class="text-lg font-semibold mb-4">لیست تراکنش ها</h2>
-
-        {{-- Filters --}}
-        <div class="flex flex-col md:flex-row flex-wrap gap-4 items-start mb-4 bg-gray-50 p-4 rounded-lg">
-            <form action="#" class="flex flex-col md:flex-row flex-wrap gap-2 w-full md:flex-1">
-                <!-- Search input -->
-                <input type="text" placeholder="جستجو..."
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-64 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-
-
-                <!-- type filter -->
-                <select
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-48 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <option>نوع تراکنش</option>
-                    <option>هزینه</option>
-                    <option>درآمد</option>
-                    <option>انتقال وجه</option>
-                </select>
-
-
-                <!-- Date filters -->
-                <input type="text" placeholder="از تاریخ" id="fromDate" pattern="\d{4}/\d{2}/\d{2}"
-                    title="فرمت صحیح: YYYY/MM/DD"
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-32 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <input type="text" placeholder="تا تاریخ" id="toDate" pattern="\d{4}/\d{2}/\d{2}"
-                    title="فرمت صحیح: YYYY/MM/DD"
-                    class="border border-gray-300 rounded-lg shadow-sm w-full md:w-32 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-
-                <!-- Apply filters button -->
-                <button type="submit"
-                    class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                    اعمال
-                </button>
-            </form>
-
-            <!-- Export to Excel -->
-            <div class="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
-                <button
-                    class="flex items-center gap-1 justify-center w-full md:w-auto px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4h16v16H4V4zm4 4l8 8m0-8l-8 8" />
-                    </svg>
-                    خروجی اکسل
-                </button>
-            </div>
-        </div>
 
         {{-- Transactions table --}}
         <div class="overflow-x-auto">
@@ -469,15 +420,18 @@
                                 @if ($inc->type === 'transfer')
                                     {{ $inc->from }} - {{ $inc->to }}
                                 @else
-                                    {{ $inc->category }} @if ($inc->subcategory)
-                                        - {{ $inc->subcategory }}
+                                    {{-- Use mainCategory name --}}
+                                    {{ $inc->mainCategory?->name ?? 'نامشخص' }}
+                                    @if ($inc->subCategory)
+                                        - {{ $inc->subCategory->name ?? 'نامشخص' }}
                                     @endif
                                 @endif
                             </td>
 
                             <td class="border px-2 py-2 whitespace-nowrap">
                                 @if ($inc->type !== 'transfer')
-                                    {{ $inc->account }}
+                                    {{-- Display account title if exists, otherwise fallback --}}
+                                    {{ $inc->account?->title ?? 'بدون حساب' }}
                                 @else
                                     -
                                 @endif
@@ -485,7 +439,8 @@
 
                             <td class="border px-2 py-2 whitespace-nowrap">
                                 @if ($inc->type !== 'transfer')
-                                    {{ $inc->person }}
+                                    {{-- Display person name if exists, otherwise fallback --}}
+                                    {{ $inc->person?->name ?? 'نامشخص' }}
                                 @else
                                     -
                                 @endif
@@ -518,168 +473,176 @@
                     @endforeach
                 </tbody>
 
-                {{-- جمع کل تراکنش‌ها --}}
+                {{-- جمع کل تراکنش‌ها صفحه فعلی --}}
                 <tfoot class="bg-gray-50 font-semibold">
                     <tr>
-
                         <td colspan="3" class="border px-2 py-2 text-red-600 whitespace-nowrap">
-                            جمع هزینه‌ها:
-                            {{ number_format(array_sum(array_map(fn($e) => $e->type === 'expense' ? $e->amount : 0, $transactions))) }}
-                            ریال
+                            جمع هزینه‌ها: {{ number_format($transactions->where('type', 'expense')->sum('amount')) }} ریال
                         </td>
 
                         <td colspan="3" class="border px-2 py-2 text-green-600 whitespace-nowrap">
-                            جمع درآمد‌ها:
-                            {{ number_format(array_sum(array_map(fn($e) => $e->type === 'income' ? $e->amount : 0, $transactions))) }}
-                            ریال
+                            جمع درآمد‌ها: {{ number_format($transactions->where('type', 'income')->sum('amount')) }} ریال
                         </td>
 
                         <td colspan="3" class="border px-2 py-2 text-blue-600 whitespace-nowrap">
-                            جمع انتقال:
-                            {{ number_format(array_sum(array_map(fn($e) => $e->type === 'transfer' ? $e->amount : 0, $transactions))) }}
-                            ریال
+                            جمع انتقال: {{ number_format($transactions->where('type', 'transfer')->sum('amount')) }} ریال
                         </td>
-
                     </tr>
                 </tfoot>
 
             </table>
         </div>
 
+        {{-- لینک‌های صفحه‌بندی --}}
+        <div class="mt-5">
 
-        {{-- Record count --}}
-        <div class="mt-4 flex flex-col md:flex-row justify-between text-sm text-gray-600 gap-2 md:gap-0">
-            <div>تعداد کل رکوردها: {{ count($transactions) }}</div>
-            <div>نمایش 1 تا {{ count($transactions) }} از {{ count($transactions) }}</div>
+            {{ $transactions->links('pagination::tailwind') }}
         </div>
-    </div>
-@endsection
+    @endsection
 
-@section('scripts')
-    <script src="/assets/js/jquery.min.js"></script>
-    <script src="/assets/js/select2.min.js"></script>
-    <script src="/assets/js/chart.umd.min.js"></script>
-    <script src="/assets/js/persianDatepicker.min.js"></script>
+    @section('scripts')
+        <script src="/assets/js/jquery.min.js"></script>
+        <script src="/assets/js/select2.min.js"></script>
+        <script src="/assets/js/chart.umd.min.js"></script>
+        <script src="/assets/js/persianDatepicker.min.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
 
 
-            // Handle tab switching (single unified block)
-            const tabs = document.querySelectorAll('.transaction-tab');
-            const forms = document.querySelectorAll('.transaction-form');
 
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const type = this.dataset.type;
+                // Handle tab switching (single unified block)
+                const tabs = document.querySelectorAll('.transaction-tab');
+                const forms = document.querySelectorAll('.transaction-form');
 
-                    // Hide all forms
-                    forms.forEach(f => f.classList.add('hidden'));
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const type = this.dataset.type;
 
-                    // Show selected form
-                    const formToShow = document.getElementById(type);
-                    if (formToShow) formToShow.classList.remove('hidden');
+                        // Hide all forms
+                        forms.forEach(f => f.classList.add('hidden'));
 
-                    // Remove active from all tabs
-                    tabs.forEach(t => {
-                        t.classList.remove('bg-red-600', 'bg-green-600', 'bg-blue-600',
-                            'text-white');
-                        t.classList.add('bg-white', 'text-gray-700');
+                        // Show selected form
+                        const formToShow = document.getElementById(type);
+                        if (formToShow) formToShow.classList.remove('hidden');
+
+                        // Remove active from all tabs
+                        tabs.forEach(t => {
+                            t.classList.remove('bg-red-600', 'bg-green-600', 'bg-blue-600',
+                                'text-white');
+                            t.classList.add('bg-white', 'text-gray-700');
+                        });
+
+                        // Add active style to clicked tab
+                        this.classList.remove('bg-white', 'text-gray-700');
+                        if (type === 'expense') this.classList.add('bg-red-600', 'text-white');
+                        if (type === 'income') this.classList.add('bg-green-600', 'text-white');
+                        if (type === 'transfer') this.classList.add('bg-blue-600', 'text-white');
                     });
-
-                    // Add active style to clicked tab
-                    this.classList.remove('bg-white', 'text-gray-700');
-                    if (type === 'expense') this.classList.add('bg-red-600', 'text-white');
-                    if (type === 'income') this.classList.add('bg-green-600', 'text-white');
-                    if (type === 'transfer') this.classList.add('bg-blue-600', 'text-white');
                 });
-            });
 
 
-            // Handle main category change and populate subcategories
-            function bindSubCategories(mainSelector, subSelector, categories) {
-                $(mainSelector).on('change', function() {
-                    const subs = categories[this.value] ?? [];
-                    const subCat = $(subSelector).empty().append('<option value="">انتخاب کنید</option>');
-                    subs.forEach(s => subCat.append(`<option value="${s}">${s}</option>`));
-                });
-            }
+                // Handle main category change and populate subcategories
+                function bindSubCategories(mainSelector, subSelector, categories) {
+                    $(mainSelector).on('change', function() {
+                        const subs = categories[this.value] ?? [];
+                        const subCat = $(subSelector).empty().append('<option value="">انتخاب کنید</option>');
+                        subs.forEach(s => subCat.append(`<option value="${s}">${s}</option>`));
+                    });
+                }
 
-            const expenseCategories = @json($expenseCategories);
-            const incomeCategories = @json($incomeCategories);
+                const expenseCategories = @json($expenseCategories);
+                const incomeCategories = @json($incomeCategories);
 
-            bindSubCategories('#expenseMainCategory', '#expenseSubCategory', expenseCategories);
-            bindSubCategories('#incomeMainCategory', '#incomeSubCategory', incomeCategories);
+                // Bind sub categories
+                bindSubCategories('#expenseMainCategory', '#expenseSubCategory', expenseCategories);
+                bindSubCategories('#incomeMainCategory', '#incomeSubCategory', incomeCategories);
 
 
+                // Chart data from backend
+                const incomeData = @json($incomeChartData);
+                const expenseData = @json($expenseChartData);
 
 
-            // Bar chart for income & expense
-            const ctx = document.getElementById('chart');
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: @json($categories),
-                        datasets: [{
-                                label: 'درآمد (ریال)',
-                                data: @json(array_map(fn($cat) => $incomeData[$cat] ?? 0, $categories)),
-                                backgroundColor: '#34d399'
-                            },
-                            {
-                                label: 'هزینه (ریال)',
-                                data: @json(array_map(fn($cat) => $expenseData[$cat] ?? 0, $categories)),
-                                backgroundColor: '#f87171'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    font: {
-                                        family: 'YekanBakh',
-                                        size: 14
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                titleFont: {
-                                    family: 'YekanBakh',
-                                    size: 14
+                // Merge category labels
+                const categories = [
+                    ...Object.keys(incomeData),
+                    ...Object.keys(expenseData)
+                ];
+
+                const labels = [...new Set(categories)];
+
+
+                // Prepare datasets
+                const incomeDataset = labels.map(cat => incomeData[cat] ?? 0);
+                const expenseDataset = labels.map(cat => expenseData[cat] ?? 0);
+
+
+                // Create chart
+                const canvas = document.getElementById('chart');
+
+                if (canvas) {
+
+                    if (window.financeChart) {
+                        window.financeChart.destroy();
+                    }
+
+                    window.financeChart = new Chart(canvas, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                    label: 'درآمد',
+                                    data: incomeDataset,
+                                    backgroundColor: '#22c55e',
+                                    borderRadius: 6
                                 },
-                                bodyFont: {
-                                    family: 'YekanBakh',
-                                    size: 12
+                                {
+                                    label: 'هزینه',
+                                    data: expenseDataset,
+                                    backgroundColor: '#ef4444',
+                                    borderRadius: 6
                                 }
-                            }
+                            ]
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        family: 'YekanBakh',
-                                        size: 12
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        font: {
+                                            family: 'YekanBakh',
+                                            size: 14
+                                        }
+                                    }
+                                },
+
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.raw.toLocaleString() + ' ریال';
+                                        }
                                     }
                                 }
                             },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        family: 'YekanBakh',
-                                        size: 12
+
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: value => value.toLocaleString()
                                     }
                                 }
                             }
                         }
-                    }
-                });
-            }
-        });
-    </script>
+                    });
+                }
 
-@endsection
+
+            });
+        </script>
+
+    @endsection

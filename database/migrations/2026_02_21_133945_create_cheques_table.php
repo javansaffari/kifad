@@ -17,8 +17,8 @@ return new class extends Migration
             $table->bigInteger('amount');
             $table->string('serial_number');
             $table->string('sayad_id');
-            $table->foreignId('person_id')->constrained('persons');
-            $table->foreignId('account_id')->constrained('accounts');
+            $table->foreignId('person_id')->constrained('persons')->nullable();
+            $table->foreignId('account_id')->constrained('accounts')->nullable();
             $table->date('issue_date');
             $table->date('due_date');
             $table->string('bank');

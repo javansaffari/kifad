@@ -60,7 +60,12 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
         'destroy' => 'income.destroy',
     ]);
 
+
     // Transactions (CRUD)
+
+    Route::post('transactions/transfer', [TransactionController::class, 'storeTransfer'])->name('transactions.storeTransfer');
+
+
     Route::resource('transactions', TransactionController::class)->names([
         'index' => 'transactions.index',
         'create' => 'transactions.create',
@@ -70,6 +75,7 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
         'update' => 'transactions.update',
         'destroy' => 'transactions.destroy',
     ]);
+
 
     // Cheques (CRUD)
     Route::resource('cheques', ChequesController::class)->names([

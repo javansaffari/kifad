@@ -11,54 +11,6 @@
 @endsection
 
 @section('content')
-    @php
-        // Sample data
-        $checkTypes = ['دریافتی', 'صادر شده'];
-
-        $accounts = [
-            (object) ['id' => 1, 'title' => 'کیف پول', 'balance' => 1500000],
-            (object) ['id' => 2, 'title' => 'بانک ملت', 'balance' => 5400000],
-            (object) ['id' => 3, 'title' => 'بانک ملی', 'balance' => 2500000],
-        ];
-        $person = ['علی', 'زهرا', 'مریم', 'رضا', 'سارا', 'کامران', 'نگار', 'پویا', 'مینا', 'امیر'];
-        $banks = ['بانک ملت', 'بانک ملی', 'بانک صادرات', 'بانک تجارت', 'بانک پارسیان'];
-        $tags = ['دریافتی', 'صادر شده', 'سایر'];
-
-        // Sample checks
-        $checks = [];
-        foreach (range(1, 20) as $i) {
-            $type = $checkTypes[array_rand($checkTypes)];
-            $account = $accounts[array_rand($accounts)]->title;
-            $person = $person[array_rand($person)];
-            $bank = $banks[array_rand($banks)];
-            $amount = rand(500000, 5000000);
-            $serial = rand(100000, 999999);
-            $siyadId = str_pad(rand(0, 9999999999999999), 16, '0', STR_PAD_LEFT);
-            $dueDate = '1402/07/' . str_pad(rand(10, 30), 2, '0', STR_PAD_LEFT);
-            $issueDate = '1402/06/' . str_pad(rand(10, 30), 2, '0', STR_PAD_LEFT);
-
-            $checks[] = (object) [
-                'type' => $type,
-                'person' => $person,
-                'account' => $account,
-                'amount' => $amount,
-                'serial' => $serial,
-                'siyad_id' => $siyadId,
-                'due_date' => $dueDate,
-                'issue_date' => $issueDate,
-                'desc' => "توضیح چک $i",
-                'tags' => [$type],
-                'bank' => $bank,
-                'paid' => rand(0, 1),
-            ];
-        }
-
-        // Chart data by type
-        $chartData = [];
-        foreach ($checks as $check) {
-            $chartData[$check->type] = ($chartData[$check->type] ?? 0) + $check->amount;
-        }
-    @endphp
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Check Form --}}
@@ -73,11 +25,11 @@
                     <label class="block text-sm mb-2">نوع چک</label>
                     <div class="flex gap-4">
                         <label class="flex items-center gap-1">
-                            <input type="radio" name="type" value="صادر شده" required checked>
+                            <input type="radio" name="type" value="issued" required checked>
                             <span>صادر شده</span>
                         </label>
                         <label class="flex items-center gap-1">
-                            <input type="radio" name="type" value="دریافتی" required>
+                            <input type="radio" name="type" value="received" required>
                             <span>دریافتی</span>
                         </label>
                     </div>
@@ -109,8 +61,8 @@
                     <label class="block text-sm mb-2">شخص</label>
                     <select name="person" class="w-full border-gray-300 rounded-lg shadow-sm">
                         <option value="">انتخاب کنید</option>
-                        @foreach ($person as $p)
-                            <option>{{ $p }}</option>
+                        @foreach ($persons as $p)
+                            <option value="{{ $p->id }}">{{ $p->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -236,8 +188,8 @@
                     @foreach ($checks as $check)
                         <tr class="hover:bg-gray-50">
                             <td class="border px-2 py-2 whitespace-nowrap">{{ $check->type }}</td>
-                            <td class="border px-2 py-2 whitespace-nowrap">{{ $check->person }}</td>
-                            <td class="border px-2 py-2 whitespace-nowrap">{{ $check->account }}</td>
+                            <td class="border px-2 py-2 whitespace-nowrap">{{ $check->person->title ?? '-' }}</td>
+                            <td class="border px-2 py-2 whitespace-nowrap">{{ $check->account->title ?? '-' }}</td>
                             <td
                                 class="border px-2 py-2 font-semibold whitespace-nowrap
                                 {{ $check->type === 'دریافتی' ? 'text-green-600' : 'text-red-600' }}">
@@ -269,61 +221,7 @@
                         </tr>
                     @endforeach
                 </tbody>
-                <tfoot class="bg-gray-50 font-semibold">
-                    @php
-                        $totalAmount = array_sum(array_map(fn($e) => $e->amount, $checks));
 
-                        $totalReceived = array_sum(
-                            array_map(fn($e) => $e->type === 'دریافتی' ? $e->amount : 0, $checks),
-                        );
-                        $totalReceivedPaid = array_sum(
-                            array_map(fn($e) => $e->type === 'دریافتی' && ($e->paid ?? 0) ? $e->amount : 0, $checks),
-                        );
-                        $totalReceivedUnpaid = $totalReceived - $totalReceivedPaid;
-
-                        $totalIssued = array_sum(
-                            array_map(fn($e) => $e->type === 'صادر شده' ? $e->amount : 0, $checks),
-                        );
-                        $totalIssuedPaid = array_sum(
-                            array_map(fn($e) => $e->type === 'صادر شده' && ($e->paid ?? 0) ? $e->amount : 0, $checks),
-                        );
-                        $totalIssuedUnpaid = $totalIssued - $totalIssuedPaid;
-                    @endphp
-
-
-                    <tr>
-                        <td colspan="2" class="border px-2 py-2 text-center text-red-600">جمع کل صادر شده</td>
-                        <td class="border px-2 py-2 text-red-600 whitespace-nowrap">{{ number_format($totalIssued) }} ریال
-                        </td>
-
-                        <td colspan="2" class="border px-2 py-2 text-center text-green-600">جمع کل دریافتی</td>
-                        <td class="border px-2 py-2 text-green-600 whitespace-nowrap">{{ number_format($totalReceived) }}
-                            ریال</td>
-
-                    </tr>
-
-                    <tr>
-                        <td colspan="2" class="border px-2 py-2 text-center text-red-600">تسویه نشده</td>
-                        <td class="border px-2 py-2 text-red-600 whitespace-nowrap">
-                            {{ number_format($totalIssuedUnpaid) }} ریال</td>
-
-                        <td colspan="2" class="border px-2 py-2 text-center text-green-600">تسویه نشده</td>
-                        <td class="border px-2 py-2 text-green-600 whitespace-nowrap">
-                            {{ number_format($totalReceivedUnpaid) }} ریال</td>
-
-                    </tr>
-
-                    <tr>
-                        <td colspan="2" class="border px-2 py-2 text-center text-red-600">تسویه شده</td>
-                        <td class="border px-2 py-2 text-red-600 whitespace-nowrap">{{ number_format($totalIssuedPaid) }}
-                            ریال</td>
-
-                        <td colspan="2" class="border px-2 py-2 text-center text-green-600">تسویه شده</td>
-                        <td class="border px-2 py-2 text-green-600 whitespace-nowrap">
-                            {{ number_format($totalReceivedPaid) }} ریال</td>
-
-                    </tr>
-                </tfoot>
 
             </table>
         </div>

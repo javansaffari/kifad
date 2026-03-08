@@ -197,8 +197,27 @@
                             </tr>
                         @endforeach
                     </tbody>
+                    {{-- جمع کل تراکنش‌ها صفحه فعلی --}}
+                    <tfoot class="bg-gray-50 font-semibold">
+                        <tr>
+
+                            <td colspan="6" class="border px-2 py-2 text-gray-600">
+                                مجموع کل هزینه‌ها: {{ number_format($expenses->sum('amount')) }} ریال
+                        </tr>
+                    </tfoot>
+
                 </table>
+
             @endif
+
+
+
+            {{-- لینک‌های صفحه‌بندی --}}
+            <div class="mt-5">
+
+                {{ $expenses->links('pagination::tailwind') }}
+            </div>
+
         </div>
     </div>
 @endsection

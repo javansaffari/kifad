@@ -18,7 +18,7 @@ class IncomeController extends Controller
         $incomes = Transaction::where('type', 'income')
             ->with(['mainCategory', 'subCategory', 'toAccount', 'person'])
             ->latest()
-            ->get();
+            ->paginate(15);
 
         $categories = Category::where('type', 'income')->get()->groupBy('parent_id');
         $accounts = Account::all();
@@ -86,7 +86,7 @@ class IncomeController extends Controller
             'tags' => $tags,
         ]);
 
-        return redirect()->route('tenant.income')->with('success', 'درآمد با موفقیت ایجاد شد.');
+        return redirect()->route('tenant.income.index')->with('success', 'درآمد با موفقیت ایجاد شد.');
     }
 
     /** Show form to edit an income */

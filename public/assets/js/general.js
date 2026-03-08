@@ -40,6 +40,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
+                // On form submit, remove commas before sending to server
+$('form').on('submit', function() {
+    $(this).find('.amount').each(function() {
+        let val = $(this).val().replace(/,/g, '');
+        $(this).val(val);
+    });
+});
+
             // Select2 با قابلیت ایجاد تگ
 
             $(".select").select2({

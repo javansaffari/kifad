@@ -18,7 +18,7 @@ class ExpenseController extends Controller
         $expenses = Transaction::where('type', 'expense')
             ->with(['mainCategory', 'subCategory', 'fromAccount', 'person'])
             ->latest()
-            ->get();
+            ->paginate(15);
 
         $categories = Category::where('type', 'expense')->get()->groupBy('parent_id');
         $accounts = Account::all();
