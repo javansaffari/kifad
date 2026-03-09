@@ -118,6 +118,8 @@ Route::prefix('tenant')->name('tenant.')->group(function () {
     Route::post('debts/{debt}/pay', [DebtController::class, 'pay'])->name('debts.pay');
 
     // Accounts (CRUD)
+    Route::post('accounts/{id}/balance', [AccountController::class, 'recalculateBalance'])->name('accounts.balance');
+
     Route::resource('accounts', AccountController::class)->names([
         'index' => 'accounts.index',
         'create' => 'accounts.create',

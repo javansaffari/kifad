@@ -27,7 +27,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm mb-2">موجودی (ریال)</label>
+                    <label class="block text-sm mb-2">موجودی اولیه (ریال)</label>
                     <input type="text" name="balance" value="{{ old('balance', $account->balance) }}"
                         class="w-full border-gray-300 rounded-lg shadow-sm px-3 py-2">
                     @error('balance')

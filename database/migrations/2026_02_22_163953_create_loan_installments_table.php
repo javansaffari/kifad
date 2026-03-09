@@ -20,7 +20,6 @@ return new class extends Migration
             $table->boolean('paid')->default(false);
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
-
             $table->foreign('loan_id')->references('id')->on('loans')->onDelete('cascade');
         });
     }

@@ -117,6 +117,22 @@
                                 </svg>
                             </a>
 
+
+
+                            <form action="{{ route('tenant.accounts.balance', $acc->id) }}" method="POST"
+                                class="inline-block balance-confirm">
+                                @csrf
+                                <button type="submit" class="text-yellow-600 hover:underline px-2 py-1 border rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="size-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0 0 12 2.25Z" />
+                                    </svg>
+
+                                </button>
+                            </form>
+
+
                             <a href="{{ route('tenant.accounts.edit', $acc->id) }}"
                                 class="text-blue-600 hover:underline px-2 py-1 border rounded">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -137,6 +153,8 @@
                                     </svg>
                                 </button>
                             </form>
+
+
                         </td>
                     </tr>
                 @endforeach
@@ -149,10 +167,10 @@
                 </tr>
             </tfoot>
         </table>
-        {{-- Record count --}}
-        <div class="mt-4 flex flex-col md:flex-row justify-between text-sm text-gray-600 gap-2 md:gap-0">
-            <div>تعداد کل رکوردها: {{ $accounts->count() }}</div>
-            <div>نمایش 1 تا {{ $accounts->count() }} از {{ $accounts->count() }}</div>
+        {{-- لینک‌های صفحه‌بندی --}}
+        <div class="mt-5">
+
+            {{ $accounts->links('pagination::tailwind') }}
         </div>
     </div>
 
@@ -170,6 +188,19 @@
             // Confirm before delete
             $('.delete-confirm').on('submit', function(e) {
                 if (!confirm('آیا از حذف این حساب اطمینان دارید؟')) e.preventDefault();
+            });
+
+            // Confirm before balance
+            $('.balance-confirm').on('submit', function(e) {
+                if (!confirm(
+                        '⚠️ هشدار!\n\n' +
+                        'شما در حال بروزرسانی موجودی این حساب هستید.\n\n' +
+                        'این عملیات:\n' +
+                        '1. تمام تراکنش‌های مرتبط با این حساب (درآمد، هزینه و انتقال) را بررسی می‌کند.\n' +
+                        '2. موجودی حساب را مجدداً بر اساس تراکنش‌ها و موجودی اولیه محاسبه می‌کند.\n\n' +
+                        'توجه داشته باشید که این عملیات باعث تغییر موجودی حساب می‌شود و قابل بازگشت نیست.\n\n' +
+                        'آیا مطمئن هستید که می‌خواهید این کار انجام شود؟'
+                    )) e.preventDefault();
             });
 
             // Chart.js for accounts by type

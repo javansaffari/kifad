@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Tenant\Account;
 use App\Models\Tenant\Transaction;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
 {
@@ -70,7 +72,7 @@ class AccountController extends Controller
         }
 
         // Get all accounts
-        $accounts = $accountsQuery->latest()->get();
+        $accounts = $accountsQuery->latest()->paginate(15);
 
         // Prepare chart data grouped by type
         $chartData = $accounts->groupBy('type')->map(function ($items) {
@@ -103,7 +105,7 @@ class AccountController extends Controller
 
         Account::create([
             'title' => $request->title,
-            'balance' => $request->balance,
+            'initial_balance' => $request->balance,
             'type' => $request->type,
             'bank' => $request->bank,
             'description' => $request->desc,
@@ -222,7 +224,7 @@ class AccountController extends Controller
 
         $account->update([
             'title' => $request->title,
-            'balance' => $request->balance,
+            'initial_balance' => $request->balance,
             'type' => $request->type,
             'bank' => $request->bank,
             'description' => $request->desc,
@@ -254,5 +256,45 @@ class AccountController extends Controller
 
         return redirect()->route('tenant.accounts.index')
             ->with('success', 'حساب با موفقیت حذف شد.');
+    }
+
+
+    public function recalculateBalance($id)
+    {
+        $account = Account::findOrFail($id);
+
+        DB::transaction(function () use ($account) {
+
+            $income = Transaction::where('to_account_id', $account->id)
+                ->where('type', 'income')
+                ->sum('amount');
+
+            $expense = Transaction::where('from_account_id', $account->id)
+                ->where('type', 'expense')
+                ->sum('amount');
+
+            $transferOut = Transaction::where('from_account_id', $account->id)
+                ->where('type', 'transfer')
+                ->sum('amount');
+
+            $transferIn = Transaction::where('to_account_id', $account->id)
+                ->where('type', 'transfer')
+                ->sum('amount');
+
+            Log::info('Balance Debug', [
+                'initial_balance' => $account->initial_balance,
+                'current_balance' => $account->balance,
+                'income' => $income,
+                'expense' => $expense,
+                'transferOut' => $transferOut,
+                'transferIn' => $transferIn,
+            ]);
+
+            $account->balance = $account->initial_balance + ($income + $transferIn) - ($expense + $transferOut);
+
+            $account->save();
+        });
+
+        return back()->with('success', 'موجودی حساب با موفقیت بروزرسانی شد');
     }
 }
